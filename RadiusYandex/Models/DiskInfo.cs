@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestYA1.Models
+namespace RadiusYandex.Models
 {
     public class DiskInfo
     {

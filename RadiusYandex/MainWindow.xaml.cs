@@ -19,19 +19,19 @@ using YandexDisk.Client;
 using YandexDisk.Client.Clients;
 using YandexDisk.Client.Http;
 
-using TestYA1.Windows;
+using RadiusYandex.Windows;
 using Microsoft.Win32;
 using YandexDisk.Client.Protocol;
 using System.Windows.Forms;
-using TestYA1.Properties;
+using RadiusYandex.Properties;
 using System.IO;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
 
-using TestYA1.Models;
+using RadiusYandex.Models;
 using System.Xml;
 
-namespace TestYA1
+namespace RadiusYandex
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

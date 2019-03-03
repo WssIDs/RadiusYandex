@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace TestYA1.Models
+namespace RadiusYandex.Models
 {
     [Serializable]
     public class SavedJob

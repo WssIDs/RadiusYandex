@@ -13,9 +13,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using TestYA1.Properties;
+using RadiusYandex.Properties;
 
-namespace TestYA1.Windows
+namespace RadiusYandex.Windows
 {
     /// <summary>
     /// Interaction logic for YandexAuthWindow.xaml

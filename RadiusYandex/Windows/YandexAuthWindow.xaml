@@ -1,9 +1,9 @@
-﻿<Window x:Name="yandexauthwindow" x:Class="TestYA1.Windows.YandexAuthWindow"
+﻿<Window x:Name="yandexauthwindow" x:Class="RadiusYandex.Windows.YandexAuthWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TestYA1.Windows"
+        xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
         Title="Авторизация приложения в Яндекс" Height="629.238" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="Yandexauthwindow_Loaded" Icon="/TestYA1;component/Papirus-Team-Papirus-Apps-Yandex-disk.ico">
     <Grid>

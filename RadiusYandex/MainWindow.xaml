@@ -1,11 +1,11 @@
-﻿<Window x:Name="MainYandexSync" x:Class="TestYA1.MainWindow"
+﻿<Window x:Name="MainYandexSync" x:Class="RadiusYandex.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TestYA1"
+        xmlns:local="clr-namespace:RadiusYandex"
         mc:Ignorable="d"
-        Title="Yandex.Disk Radius" Height="450" Width="800" Closing="MainYandexSync_Closing" Icon="uploadToYandex.ico">
+        Title="RadiusYandex" Height="450" Width="800" Closing="MainYandexSync_Closing" Icon="uploadToYandex.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>

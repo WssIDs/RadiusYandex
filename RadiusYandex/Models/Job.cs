@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Serialization;
 
-namespace TestYA1.Models
+namespace RadiusYandex.Models
 {
     [Serializable]
     public class Job
