@@ -6,8 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Serialization;
 
-namespace TestYA1
+namespace TestYA1.Models
 {
     [Serializable]
     public class Job
@@ -17,17 +18,19 @@ namespace TestYA1
 
         }
 
-        public Job (Guid id, string instartpath, string inendpath)
+        public Job (Guid id, string localpath, string externalpath)
         {
             ID = id;
-            InStartPath = instartpath;
-            InEndPath = inendpath;
+            LocalPath = localpath;
+            ExternalPath = externalpath;
         }
 
         public Guid ID { get; set; }
-        public string InStartPath { get; set; }
-        public string InEndPath { get; set; }
+        public string LocalPath { get; set; }
+        public string ExternalPath { get; set; }
+        [XmlIgnore]
         public string Status { get; set; }
+        [XmlIgnore]
         public int Percent { get; set; }
     }
 }

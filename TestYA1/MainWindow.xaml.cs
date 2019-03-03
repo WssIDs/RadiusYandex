@@ -28,6 +28,9 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Collections.ObjectModel;
 
+using TestYA1.Models;
+using System.Xml;
+
 namespace TestYA1
 {
     /// <summary>
@@ -38,72 +41,59 @@ namespace TestYA1
 
         ObservableCollection<Job> jobs = new ObservableCollection<Job>();
         ObservableCollection<Job> downloadjobs = new ObservableCollection<Job>();
+        public SavedJob MainJob = new SavedJob();
+
+
+        DiskInfo diskInfo = new DiskInfo();
 
         public MainWindow()
         {
             InitializeComponent();
+            try
+            {
+                GetDiskSpace();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+
+                YandexAuthWindow yaDlg = new YandexAuthWindow();
+                yaDlg.Owner = this;
+
+                if (yaDlg.ShowDialog() == true)
+                {
+                    GetDiskSpace();
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show(ex.Message);
+                }
+            }
 
             if (File.Exists("jobs.xml"))
             {
                 // передаем в конструктор тип класса
-                XmlSerializer formatter = new XmlSerializer(typeof(Job[]));
-
-                //// получаем поток, куда будем записывать сериализованный объект
-                //using (FileStream fs = new FileStream("persons.xml", FileMode.OpenOrCreate))
-                //{
-                //    formatter.Serialize(fs, person);
-
-                //    Console.WriteLine("Объект сериализован");
-                //}
+                XmlSerializer formatter = new XmlSerializer(typeof(SavedJob));
 
                 // десериализация
                 using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
                 {
-                    Job[] newjobs = (Job[])formatter.Deserialize(fs);
-
-                    foreach(var job in newjobs)
+                    XmlReader reader = new XmlTextReader(fs);
+                    if (formatter.CanDeserialize(reader))
                     {
-                        job.Status = "";
-                        job.Percent = 0;
-                        jobs.Add(job);
+                        SavedJob newjob = (SavedJob)formatter.Deserialize(reader);
+
+                        if (newjob != null)
+                        {
+                            MainJob.UploadJobs = newjob.UploadJobs;
+                            MainJob.DownloadJobs = newjob.DownloadJobs;
+                        }
                     }
                 }
             }
 
-            db_ToYandex.DataContext = jobs;
-
-
-            if (File.Exists("downloadjobs.xml"))
-            {
-                // передаем в конструктор тип класса
-                XmlSerializer formatter = new XmlSerializer(typeof(Job[]));
-
-                //// получаем поток, куда будем записывать сериализованный объект
-                //using (FileStream fs = new FileStream("persons.xml", FileMode.OpenOrCreate))
-                //{
-                //    formatter.Serialize(fs, person);
-
-                //    Console.WriteLine("Объект сериализован");
-                //}
-
-                // десериализация
-                using (FileStream fs = new FileStream("downloadjobs.xml", FileMode.OpenOrCreate))
-                {
-                    Job[] newjobs = (Job[])formatter.Deserialize(fs);
-
-                    foreach (var job in newjobs)
-                    {
-                        job.Status = "";
-                        job.Percent = 0;
-                        downloadjobs.Add(job);
-                    }
-                }
-            }
-
-            db_FromYandex.DataContext = downloadjobs;
-
-            //INstartupPath_tb.Text = Settings.Default.INstartPath;
-            //INendPath_tb.Text = Settings.Default.INendPath;
+            db_ToYandex.DataContext = MainJob.UploadJobs;
+            db_FromYandex.DataContext = MainJob.DownloadJobs;
 
             if (Settings.Default.autostart)
             {
@@ -113,11 +103,11 @@ namespace TestYA1
 
         async Task UploadSample(string token = "")
         {
-            if (jobs != null)
+            if (MainJob.UploadJobs != null)
             {
-                for (int n = 0; n < jobs.Count; n++)
+                for (int n = 0; n < MainJob.UploadJobs.Count; n++)
                 {
-                    DirectoryInfo dirInfo = new DirectoryInfo(jobs[n].InStartPath);
+                    DirectoryInfo dirInfo = new DirectoryInfo(MainJob.UploadJobs[n].LocalPath);
 
                     if (dirInfo != null)
                     {
@@ -126,7 +116,7 @@ namespace TestYA1
 
                         if (files != null)
                         {
-                            jobs[n].Status = "Загрузка...";
+                            MainJob.UploadJobs[n].Status = "Загрузка...";
                             db_ToYandex.Items.Refresh();
                             upload.IsEnabled = false;
                             db_ToYandex.IsEnabled = false;
@@ -139,28 +129,27 @@ namespace TestYA1
 
                             for (int i = 0; i < files.Count; i++)
                             {
-                                jobs[n].Percent = (i + 1) * 100 / files.Count;
-                                jobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается";
+                                MainJob.UploadJobs[n].Percent = (i + 1) * 100 / files.Count;
+                                MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается";
                                 db_ToYandex.Items.Refresh();
                                 //Upload file from local
-                                await diskApi.Files.UploadFileAsync(path: "/" + jobs[n].InEndPath + "/" + files[i].Name,
+                                await diskApi.Files.UploadFileAsync(path: "/" + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name,
                                                                     overwrite: true,
                                                                     localFile: files[i].FullName,
                                                                     cancellationToken: CancellationToken.None);
 
-                                jobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен";
-                                jobs[n].Percent = (i+1) * 100 / files.Count;
+                                MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен";
+                                MainJob.UploadJobs[n].Percent = (i+1) * 100 / files.Count;
                                 db_ToYandex.Items.Refresh();
 
                                 files[i].Delete();
                             }
 
                             db_ToYandex.Items.Refresh();
-                            jobs[n].Status = "Выполнено";
+                            MainJob.UploadJobs[n].Status = "Выполнено";
+                            MainJob.UploadJobs[n].Percent = 100;
                             upload.IsEnabled = true;
                             db_ToYandex.IsEnabled = true;
-                            //Task.WaitAll();
-                            //Close();
                         }
                         else
                         {
@@ -173,13 +162,13 @@ namespace TestYA1
 
         async Task DownloadAllFilesInFolder(string token = "")
         {
-            if (downloadjobs != null)
+            if (MainJob.DownloadJobs != null)
             {
-                foreach (Job job in downloadjobs)
+                foreach (Job job in MainJob.DownloadJobs)
                 {
                     db_FromYandex.Items.Refresh();
                     upload.IsEnabled = false;
-                    db_ToYandex.IsEnabled = false;
+                    db_FromYandex.IsEnabled = false;
 
                     // Create a client instance
                     IDiskApi diskApi = new DiskHttpApi(token);
@@ -188,7 +177,7 @@ namespace TestYA1
                     Resource fooResourceDescription = await diskApi.MetaInfo.GetInfoAsync(
                         new ResourceRequest
                         {
-                            Path = "/" + job.InEndPath, //Folder on Yandex Disk
+                            Path = "/" + job.ExternalPath, //Folder on Yandex Disk
                     }, CancellationToken.None);
 
                     //Getting all files from response
@@ -196,28 +185,39 @@ namespace TestYA1
                         fooResourceDescription.Embedded.Items.Where(item => item.Type == ResourceType.File);
 
                     //Path to local folder for downloading files
-                    string localFolder = job.InStartPath;
+                    string localFolder = job.LocalPath;
 
-                    //Run all downloadings in parallel. DiskApi is thread safe.
-                    IEnumerable<Task> downloadingTasks =
-                        allFilesInFolder.Select(file =>
-                          diskApi.Files.DownloadFileAsync(path: file.Path, localFile: System.IO.Path.Combine(localFolder, file.Name)));
+                    if (allFilesInFolder != null)
+                    {
+                        int index = 0;
+
+                        foreach(var item in allFilesInFolder)
+                        {
+                            job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
+                            job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается";
+                            db_FromYandex.Items.Refresh();
+                            //Upload file to local
+                            await diskApi.Files.DownloadFileAsync(path: item.Path, localFile: System.IO.Path.Combine(localFolder, item.Name));
+
+                            job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен";
+                            job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
+                            db_FromYandex.Items.Refresh();
+
+                            await diskApi.Commands.DeleteAsync(new DeleteFileRequest
+                            {
+                                Path = item.Path
+                            });
+
+                            index++;
+                        }
+                    }
 
                     db_FromYandex.Items.Refresh();
                     job.Status = "Выполнено";
-                    upload.IsEnabled = true;
+                    job.Percent = 100;
                     db_FromYandex.IsEnabled = true;
 
-                    //Wait all done
-                    await Task.WhenAll(downloadingTasks);
-
-                    foreach (var item in allFilesInFolder)
-                    {
-                        await diskApi.Commands.DeleteAsync(new DeleteFileRequest
-                        {
-                            Path = item.Path
-                        });
-                    }
+                    await diskApi.Commands.EmptyTrashAsync(path: "/");
                 }
             }
         }
@@ -232,7 +232,7 @@ namespace TestYA1
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                //System.Windows.MessageBox.Show(ex.Message);
 
                 YandexAuthWindow yaDlg = new YandexAuthWindow();
                 yaDlg.Owner = this;
@@ -251,8 +251,18 @@ namespace TestYA1
             if (Settings.Default.autoclose)
             {
                 Task.WaitAll();
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+                upload.IsEnabled = true;
                 Close();
             }
+            else
+            {
+                Task.WaitAll();
+                Thread.Sleep(TimeSpan.FromSeconds(1));
+                upload.IsEnabled = true;
+            }
+
+            
         }
 
         private void Selectfolder_bt_Click(object sender, RoutedEventArgs e)
@@ -276,34 +286,34 @@ namespace TestYA1
             Settings.Default.Save();
 
             // передаем в конструктор тип класса
-            XmlSerializer uploadformatter = new XmlSerializer(typeof(Job[]));
+            XmlSerializer uploadformatter = new XmlSerializer(typeof(SavedJob));
 
-            if (jobs != null)
+            if (MainJob.UploadJobs != null)
             {
                 //// получаем поток, куда будем записывать сериализованный объект
-                using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
+                using (FileStream fs = new FileStream("jobs.xml", FileMode.Create))
                 {
 
-                    uploadformatter.Serialize(fs, jobs.ToArray());
+                    uploadformatter.Serialize(fs,MainJob);
 
                     Console.WriteLine("Объект сериализован");
                 }
             }
 
-            // передаем в конструктор тип класса
-            XmlSerializer downloadformatter = new XmlSerializer(typeof(Job[]));
+            //// передаем в конструктор тип класса
+            //XmlSerializer downloadformatter = new XmlSerializer(typeof(SavedJob));
 
-            if (downloadjobs != null)
-            {
-                //// получаем поток, куда будем записывать сериализованный объект
-                using (FileStream fs = new FileStream("downloadjobs.xml", FileMode.OpenOrCreate))
-                {
+            //if (MainJob.DownloadJobs != null)
+            //{
+            //    //// получаем поток, куда будем записывать сериализованный объект
+            //    using (FileStream fs = new FileStream("downloadjobs.xml", FileMode.Create))
+            //    {
 
-                    downloadformatter.Serialize(fs, downloadjobs.ToArray());
+            //        downloadformatter.Serialize(fs, MainJob);
 
-                    Console.WriteLine("Объект сериализован");
-                }
-            }
+            //        Console.WriteLine("Объект сериализован");
+            //    }
+            //}
 
         }
 
@@ -335,6 +345,7 @@ namespace TestYA1
             if (Settings.Default.autoclose)
             {
                 Task.WaitAll();
+                Thread.Sleep(TimeSpan.FromSeconds(3));
                 Close();
             }
         }
@@ -344,7 +355,7 @@ namespace TestYA1
             Job job = new Job();
             job.ID = Guid.NewGuid();
 
-            jobs.Add(job);
+            MainJob.UploadJobs.Add(job);
         }
 
         private void RemToYa_bt_Click(object sender, RoutedEventArgs e)
@@ -355,7 +366,7 @@ namespace TestYA1
 
                 if(selectedjob != null)
                 {
-                    jobs.Remove(selectedjob);
+                    MainJob.UploadJobs.Remove(selectedjob);
                 }
             }
             else
@@ -369,7 +380,7 @@ namespace TestYA1
             Job job = new Job();
             job.ID = Guid.NewGuid();
 
-            downloadjobs.Add(job);
+            MainJob.DownloadJobs.Add(job);
         }
 
         private void RemFromYa_bt_Click(object sender, RoutedEventArgs e)
@@ -380,12 +391,32 @@ namespace TestYA1
 
                 if (selectedjob != null)
                 {
-                    downloadjobs.Remove(selectedjob);
+                    MainJob.DownloadJobs.Remove(selectedjob);
                 }
             }
             else
             {
                 System.Windows.MessageBox.Show("Не выбрано поле для удаления");
+            }
+        }
+
+        public async void GetDiskSpace()
+        {
+            IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+
+            if (diskApi != null)
+            {
+                Disk result = await diskApi.MetaInfo.GetDiskInfoAsync();
+
+                if(result != null)
+                {
+                    diskInfo.TotalSpace = result.TotalSpace / Math.Pow(2, 30);
+                    diskInfo.UsedSpace = result.UsedSpace / Math.Pow(2, 30);
+                    diskInfo.TrashSpace = result.TrashSize / Math.Pow(2, 30);
+
+                    usedspace_tb.Text =  "Использовано: "+Math.Round(diskInfo.UsedSpace,2).ToString()+ " Гб";
+                    totalspace_tb.Text = "Всего: "+diskInfo.TotalSpace.ToString() + " Гб";
+                }
             }
         }
     }
