@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyDescription("Загрузка и скачивание")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WssIDs")]
-[assembly: AssemblyProduct("Yandex.Disk Radius")]
+[assembly: AssemblyProduct("RadiusYandex")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -1,28 +1,15 @@
-﻿using Nemiro.OAuth;
-using Nemiro.OAuth.Clients;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using YandexDisk.Client;
 using YandexDisk.Client.Clients;
 using YandexDisk.Client.Http;
 
 using RadiusYandex.Windows;
-using Microsoft.Win32;
 using YandexDisk.Client.Protocol;
-using System.Windows.Forms;
 using RadiusYandex.Properties;
 using System.IO;
 using System.Xml.Serialization;
@@ -30,6 +17,9 @@ using System.Collections.ObjectModel;
 
 using RadiusYandex.Models;
 using System.Xml;
+using NLog;
+using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace RadiusYandex
 {
@@ -39,65 +29,59 @@ namespace RadiusYandex
     public partial class MainWindow : Window
     {
 
-        ObservableCollection<Job> jobs = new ObservableCollection<Job>();
-        ObservableCollection<Job> downloadjobs = new ObservableCollection<Job>();
+        //ObservableCollection<Job> jobs = new ObservableCollection<Job>();
+        //ObservableCollection<Job> downloadjobs = new ObservableCollection<Job>();
+
         public SavedJob MainJob = new SavedJob();
-
-
         DiskInfo diskInfo = new DiskInfo();
+        Mutex mutexObj;
+        Logger logger = LogManager.GetCurrentClassLogger();
+
+        IDiskApi DiskApi;
 
         public MainWindow()
         {
-            InitializeComponent();
-            try
+            bool existed;
+            // получаем GIUD приложения
+            string guid = Marshal.GetTypeLibGuidForAssembly(Assembly.GetExecutingAssembly()).ToString();
+
+            mutexObj = new Mutex(true, guid, out existed);
+            if (existed)
             {
-                GetDiskSpace();
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(ex.Message);
+                InitializeComponent();
 
-                YandexAuthWindow yaDlg = new YandexAuthWindow();
-                yaDlg.Owner = this;
+                logger.Trace("Запуск приложения");
 
-                if (yaDlg.ShowDialog() == true)
+                if (File.Exists("jobs.xml"))
                 {
-                    GetDiskSpace();
-                }
-                else
-                {
-                    System.Windows.MessageBox.Show(ex.Message);
-                }
-            }
+                    // передаем в конструктор тип класса
+                    XmlSerializer formatter = new XmlSerializer(typeof(SavedJob));
 
-            if (File.Exists("jobs.xml"))
-            {
-                // передаем в конструктор тип класса
-                XmlSerializer formatter = new XmlSerializer(typeof(SavedJob));
-
-                // десериализация
-                using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
-                {
-                    XmlReader reader = new XmlTextReader(fs);
-                    if (formatter.CanDeserialize(reader))
+                    // десериализация
+                    using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
                     {
-                        SavedJob newjob = (SavedJob)formatter.Deserialize(reader);
-
-                        if (newjob != null)
+                        XmlReader reader = new XmlTextReader(fs);
+                        if (formatter.CanDeserialize(reader))
                         {
-                            MainJob.UploadJobs = newjob.UploadJobs;
-                            MainJob.DownloadJobs = newjob.DownloadJobs;
+                            SavedJob newjob = (SavedJob)formatter.Deserialize(reader);
+
+                            if (newjob != null)
+                            {
+                                MainJob.UploadJobs = newjob.UploadJobs;
+                                MainJob.DownloadJobs = newjob.DownloadJobs;
+                            }
                         }
                     }
                 }
+
+                db_ToYandex.DataContext = MainJob.UploadJobs;
+                db_FromYandex.DataContext = MainJob.DownloadJobs;
             }
-
-            db_ToYandex.DataContext = MainJob.UploadJobs;
-            db_FromYandex.DataContext = MainJob.DownloadJobs;
-
-            if (Settings.Default.autostart)
+            else
             {
-                RunAllTask();
+                MessageBox.Show("Приложение уже запущено! Запуск более одной копии приложения невозможен", "Ошибка",MessageBoxButton.OK, MessageBoxImage.Error);
+                logger.Error("Попытка запуска второй копии приложения");
+                Close();
             }
         }
 
@@ -120,32 +104,37 @@ namespace RadiusYandex
                             db_ToYandex.Items.Refresh();
                             upload.IsEnabled = false;
                             db_ToYandex.IsEnabled = false;
+                            MainJob.UploadJobs[n].Percent = 0;
                             //You should have oauth token from Yandex Passport.
                             //See https://tech.yandex.ru/oauth/
                             //string oauthToken = "AQAAAAAYlmlrAADLWyLT7ciABU3uoL5tD-_sRcQ";
 
                             // Create a client instance
-                            IDiskApi diskApi = new DiskHttpApi(token);
+                            //IDiskApi diskApi = new DiskHttpApi(token);
 
                             for (int i = 0; i < files.Count; i++)
                             {
                                 MainJob.UploadJobs[n].Percent = (i + 1) * 100 / files.Count;
                                 MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается";
                                 db_ToYandex.Items.Refresh();
+
+                                //logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается");
                                 //Upload file from local
-                                await diskApi.Files.UploadFileAsync(path: "/" + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name,
+                                await DiskApi.Files.UploadFileAsync(path: "/" + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name,
                                                                     overwrite: true,
                                                                     localFile: files[i].FullName,
                                                                     cancellationToken: CancellationToken.None);
 
                                 MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен";
+                                logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен");
                                 MainJob.UploadJobs[n].Percent = (i+1) * 100 / files.Count;
                                 db_ToYandex.Items.Refresh();
-
+                                logger.Info("Удаление исходного файла: "+ files[i]);
                                 files[i].Delete();
                             }
 
                             db_ToYandex.Items.Refresh();
+                            logger.Info("Все файлы загружены на Яндекс.Диск");
                             MainJob.UploadJobs[n].Status = "Выполнено";
                             MainJob.UploadJobs[n].Percent = 100;
                             upload.IsEnabled = true;
@@ -153,7 +142,9 @@ namespace RadiusYandex
                         }
                         else
                         {
-                            System.Windows.MessageBox.Show("Файлы в директории отсутствуют");
+                            Logger logger = LogManager.GetCurrentClassLogger();
+                            //System.Windows.MessageBox.Show("Файлы в директории отсутствуют"); LOG
+                            logger.Warn("Файлы в директории отсутствуют");
                         }
                     }
                 }
@@ -171,10 +162,10 @@ namespace RadiusYandex
                     db_FromYandex.IsEnabled = false;
 
                     // Create a client instance
-                    IDiskApi diskApi = new DiskHttpApi(token);
+                    //IDiskApi diskApi = new DiskHttpApi(token);
 
                     //Getting information about folder /foo and all files in it
-                    Resource fooResourceDescription = await diskApi.MetaInfo.GetInfoAsync(
+                    Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
                         new ResourceRequest
                         {
                             Path = "/" + job.ExternalPath, //Folder on Yandex Disk
@@ -190,23 +181,28 @@ namespace RadiusYandex
                     if (allFilesInFolder != null)
                     {
                         int index = 0;
+                        job.Percent = 0;
 
-                        foreach(var item in allFilesInFolder)
+                        foreach (var item in allFilesInFolder)
                         {
                             job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
+                            //logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается");
                             job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается";
                             db_FromYandex.Items.Refresh();
                             //Upload file to local
-                            await diskApi.Files.DownloadFileAsync(path: item.Path, localFile: System.IO.Path.Combine(localFolder, item.Name));
+                            await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: System.IO.Path.Combine(localFolder, item.Name));
 
                             job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен";
+                            logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен");
                             job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
                             db_FromYandex.Items.Refresh();
 
-                            await diskApi.Commands.DeleteAsync(new DeleteFileRequest
+                            await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
                             {
                                 Path = item.Path
                             });
+
+                            logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
 
                             index++;
                         }
@@ -214,16 +210,19 @@ namespace RadiusYandex
 
                     db_FromYandex.Items.Refresh();
                     job.Status = "Выполнено";
+                    logger.Info("Все файлы загружены на локальный компьютер");
                     job.Percent = 100;
                     db_FromYandex.IsEnabled = true;
 
-                    await diskApi.Commands.EmptyTrashAsync(path: "/");
+                    await DiskApi.Commands.EmptyTrashAsync(path: "/");
                 }
             }
         }
 
         private async void Upload_Click(object sender, RoutedEventArgs e)
         {
+            Logger logger = LogManager.GetCurrentClassLogger();
+
             //MessageBox.Show(client.AccessToken);
             try
             {
@@ -232,7 +231,9 @@ namespace RadiusYandex
             }
             catch (Exception ex)
             {
-                //System.Windows.MessageBox.Show(ex.Message);
+                //System.Windows.MessageBox.Show(ex.Message); LOG
+
+                logger.Warn(ex.Message);
 
                 YandexAuthWindow yaDlg = new YandexAuthWindow();
                 yaDlg.Owner = this;
@@ -244,21 +245,21 @@ namespace RadiusYandex
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show(ex.Message);
+                    //System.Windows.MessageBox.Show(ex.Message); LOG
+                    logger.Warn(ex.Message);
                 }
             }
 
             if (Settings.Default.autoclose)
             {
                 Task.WaitAll();
-                Thread.Sleep(TimeSpan.FromSeconds(1));
                 upload.IsEnabled = true;
+                logger.Info("Автозавершение работы приложения по окончанию всех задач");
                 Close();
             }
             else
             {
                 Task.WaitAll();
-                Thread.Sleep(TimeSpan.FromSeconds(1));
                 upload.IsEnabled = true;
             }
 
@@ -281,14 +282,13 @@ namespace RadiusYandex
 
         private void MainYandexSync_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Settings.Default.autostart = false;
-            //Settings.Default.INendPath = INendPath_tb.Text;
+            Logger logger = LogManager.GetCurrentClassLogger();
             Settings.Default.Save();
 
             // передаем в конструктор тип класса
             XmlSerializer uploadformatter = new XmlSerializer(typeof(SavedJob));
 
-            if (MainJob.UploadJobs != null)
+            if (MainJob.UploadJobs != null || MainJob.DownloadJobs != null)
             {
                 //// получаем поток, куда будем записывать сериализованный объект
                 using (FileStream fs = new FileStream("jobs.xml", FileMode.Create))
@@ -296,29 +296,19 @@ namespace RadiusYandex
 
                     uploadformatter.Serialize(fs,MainJob);
 
-                    Console.WriteLine("Объект сериализован");
+                    //Console.WriteLine("Объект сериализован"); LOG
+                    logger.Info("Успешное сохранение задач в файле jobs.xml");
+
                 }
             }
 
-            //// передаем в конструктор тип класса
-            //XmlSerializer downloadformatter = new XmlSerializer(typeof(SavedJob));
-
-            //if (MainJob.DownloadJobs != null)
-            //{
-            //    //// получаем поток, куда будем записывать сериализованный объект
-            //    using (FileStream fs = new FileStream("downloadjobs.xml", FileMode.Create))
-            //    {
-
-            //        downloadformatter.Serialize(fs, MainJob);
-
-            //        Console.WriteLine("Объект сериализован");
-            //    }
-            //}
-
+            logger.Debug("Завершение приложения");
+            LogManager.Shutdown();
         }
 
         public async void RunAllTask()
         {
+            Logger logger = LogManager.GetCurrentClassLogger();
             try
             {
                 await UploadSample(Settings.Default.token);
@@ -326,7 +316,7 @@ namespace RadiusYandex
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(ex.Message);
+                logger.Warn(ex.Message);
 
                 YandexAuthWindow yaDlg = new YandexAuthWindow();
                 yaDlg.Owner = this;
@@ -338,14 +328,14 @@ namespace RadiusYandex
                 }
                 else
                 {
-                    System.Windows.MessageBox.Show(ex.Message);
+                    logger.Warn(ex.Message);
                 }
             }
 
             if (Settings.Default.autoclose)
             {
                 Task.WaitAll();
-                Thread.Sleep(TimeSpan.FromSeconds(3));
+                logger.Info("Автозавершение работы приложения по окончанию всех задач");
                 Close();
             }
         }
@@ -400,23 +390,92 @@ namespace RadiusYandex
             }
         }
 
-        public async void GetDiskSpace()
+        async void GetDiskSpace()
         {
-            IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+            DiskApi = Authorize();
 
-            if (diskApi != null)
+            if (DiskApi != null)
             {
-                Disk result = await diskApi.MetaInfo.GetDiskInfoAsync();
+                Disk result = await DiskApi.MetaInfo.GetDiskInfoAsync();
 
-                if(result != null)
+                if (result != null)
                 {
+                    logger.Trace("Получение информации о диске");
                     diskInfo.TotalSpace = result.TotalSpace / Math.Pow(2, 30);
                     diskInfo.UsedSpace = result.UsedSpace / Math.Pow(2, 30);
                     diskInfo.TrashSpace = result.TrashSize / Math.Pow(2, 30);
 
-                    usedspace_tb.Text =  "Использовано: "+Math.Round(diskInfo.UsedSpace,2).ToString()+ " Гб";
-                    totalspace_tb.Text = "Всего: "+diskInfo.TotalSpace.ToString() + " Гб";
+                    usedspace_tb.Text = "Использовано: " + Math.Round(diskInfo.UsedSpace, 2).ToString() + " Гб";
+                    totalspace_tb.Text = "Всего: " + diskInfo.TotalSpace.ToString() + " Гб";
                 }
+                else
+                {
+                    logger.Warn("Ошибка получения информации о диске");
+                }
+            }
+        }
+
+        private IDiskApi Authorize()
+        {
+            try
+            {
+                IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+                logger.Trace("Получение токена");
+
+                if (diskApi != null)
+                {
+                    Disk result = diskApi.MetaInfo.GetDiskInfoAsync().Result;
+                    logger.Trace("Успешное получение токена");
+                    return diskApi;
+                }
+                else
+                {
+                    logger.Error("Ошибка создания экземпляра класса DiskApi");
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Warn("Ошибка получения токена: " + ex.Message);
+
+                logger.Trace("Попытка получения токена: Инциализация диалогового окна регистраци приложения Яндекс.Диска");
+
+                YandexAuthWindow yaDlg = new YandexAuthWindow();
+                yaDlg.Owner = this;
+
+                if (yaDlg.ShowDialog() == true)
+                {
+                    IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+                    logger.Trace("Получение токена");
+
+                    if (diskApi != null)
+                    {
+                        Disk result = diskApi.MetaInfo.GetDiskInfoAsync().Result;
+                        logger.Trace("Успешное получение токена");
+                        return diskApi;
+                    }
+                    else
+                    {
+                        logger.Error("Ошибка создания экземпляра класса DiskApi");
+                    }
+                }
+                else
+                {
+                    logger.Error("Ошибка инициализации диалогового окна регистраци приложения Яндекс.Диска: " + ex.Message);
+                }
+            }
+
+            return null;
+        }
+
+        private void MainYandexSync_Loaded(object sender, RoutedEventArgs e)
+        {
+            GetDiskSpace();
+
+            Task.WaitAll();
+
+            if (Settings.Default.autostart)
+            {
+                RunAllTask();
             }
         }
     }

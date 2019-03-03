@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
-        Title="Авторизация приложения в Яндекс" Height="629.238" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="Yandexauthwindow_Loaded" Icon="/TestYA1;component/Papirus-Team-Papirus-Apps-Yandex-disk.ico">
+        Title="Авторизация приложения в Яндекс" Height="629.238" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="Yandexauthwindow_Loaded" Icon="/RadiusYandex;component/YandexDisk.ico">
     <Grid>
         <WebBrowser Name="yandexweb" LoadCompleted="Yandexweb_LoadCompleted"/>
     </Grid>

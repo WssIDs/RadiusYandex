@@ -1,19 +1,9 @@
 ﻿using Nemiro.OAuth;
 using Nemiro.OAuth.Clients;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using RadiusYandex.Properties;
+using System.Windows.Navigation;
+using NLog;
 
 namespace RadiusYandex.Windows
 {
@@ -22,12 +12,16 @@ namespace RadiusYandex.Windows
     /// </summary>
     public partial class YandexAuthWindow : Window
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
+
         public YandexAuthWindow()
         {
             InitializeComponent();
+
+            logger.Info("Инициализация окна получения токена Яндекс.Диска");
         }
 
-        private void Yandexweb_LoadCompleted(object sender, System.Windows.Navigation.NavigationEventArgs e)
+        private void Yandexweb_LoadCompleted(object sender, NavigationEventArgs e)
         {
             // ожидаем, когда появится адрес с результатами авторизации
             if (e.Uri.Query.IndexOf("code=") != -1 || e.Uri.Fragment.IndexOf("code=") != -1 || e.Uri.Query.IndexOf("oauth_verifier=") != -1)
@@ -36,23 +30,8 @@ namespace RadiusYandex.Windows
                 var result = OAuthWeb.VerifyAuthorization(e.Uri.ToString());
                 if (result.IsSuccessfully)
                 {
+                    logger.Info("Успешная проверка авторизации");
                     //показываем данные пользователя
-                    MessageBox.Show
-                    (
-                      String.Format
-                      (
-                        "User ID: {0}\r\nUsername: {1}\r\nDisplay Name: {2}\r\nE-Mail: {3}\r\nToken: {4}",
-                        result.UserInfo.UserId,
-                        result.UserInfo.UserName,
-                        result.UserInfo.DisplayName ?? result.UserInfo.FullName,
-                        result.UserInfo.Email,
-                        result.AccessToken
-                      ),
-                      "Successfully",
-                      MessageBoxButton.OK,
-                      MessageBoxImage.Information
-                    );
-
                     Settings.Default.token = result.AccessToken;
                     Settings.Default.Save();
                     DialogResult = true;
@@ -61,7 +40,8 @@ namespace RadiusYandex.Windows
                 else
                 {
                     // ошибка
-                    MessageBox.Show(result.ErrorInfo.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //MessageBox.Show(result.ErrorInfo.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error); LOG
+                    logger.Error(result.ErrorInfo.Message);
                 }
             }
         }
@@ -79,7 +59,7 @@ namespace RadiusYandex.Windows
                 client
             );
 
-            yandexweb.Navigate(OAuthWeb.GetAuthorizationUrl("Yandex"));
+            yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
         }
     }
 }
