@@ -13,5 +13,38 @@ namespace RadiusYandex
     /// </summary>
     public partial class App : Application
     {
+        public void App_Startup(object sender, StartupEventArgs e)
+        {
+            // Application is running
+            // Process command line args
+            bool startminimized = false;
+            bool autostart = false;
+            bool autoclose = false;
+            for (int i = 0; i != e.Args.Length; ++i)
+            {
+                if (e.Args[i] == "-startminimized")
+                {
+                    startminimized = true;
+                }
+                if(e.Args[i] == "-autostart")
+                {
+                    autostart = true;
+                }
+                if (e.Args[i] == "-autoclose")
+                {
+                    autoclose = true;
+                }
+            }
+
+            // Create main application window, starting minimized if specified
+            MainWindow mainWindow = new MainWindow();
+            if (startminimized)
+            {
+                mainWindow.WindowState = WindowState.Minimized;
+            }
+            mainWindow.autostart = autostart;
+            mainWindow.autoclose = autoclose;
+            mainWindow.Show();
+        }
     }
 }

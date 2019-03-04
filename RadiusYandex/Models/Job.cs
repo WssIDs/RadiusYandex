@@ -28,6 +28,8 @@ namespace RadiusYandex.Models
         public Guid ID { get; set; }
         public string LocalPath { get; set; }
         public string ExternalPath { get; set; }
+        public string Filter { get; set; }
+        public bool DeleteFiles { get; set; }
         [XmlIgnore]
         public string Status { get; set; }
         [XmlIgnore]

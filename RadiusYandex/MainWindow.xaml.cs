@@ -28,7 +28,8 @@ namespace RadiusYandex
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        public bool autostart = false;
+        public bool autoclose = false;
         //ObservableCollection<Job> jobs = new ObservableCollection<Job>();
         //ObservableCollection<Job> downloadjobs = new ObservableCollection<Job>();
 
@@ -95,8 +96,10 @@ namespace RadiusYandex
 
                     if (dirInfo != null)
                     {
-                        List<FileInfo> files = dirInfo.GetFiles().ToList();
+                        List<FileInfo> files = MainJob.UploadJobs[n].Filter.Split('|').SelectMany(filter => dirInfo.GetFiles(filter,SearchOption.TopDirectoryOnly)).ToList();
 
+
+                        //CreateDirectoryAsync(MainJob.UploadJobs[n].ExternalPath);
 
                         if (files != null)
                         {
@@ -120,6 +123,7 @@ namespace RadiusYandex
 
                                 //logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается");
                                 //Upload file from local
+
                                 await DiskApi.Files.UploadFileAsync(path: "/" + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name,
                                                                     overwrite: true,
                                                                     localFile: files[i].FullName,
@@ -129,8 +133,12 @@ namespace RadiusYandex
                                 logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен");
                                 MainJob.UploadJobs[n].Percent = (i+1) * 100 / files.Count;
                                 db_ToYandex.Items.Refresh();
-                                logger.Info("Удаление исходного файла: "+ files[i]);
-                                files[i].Delete();
+
+                                if (MainJob.UploadJobs[n].DeleteFiles)
+                                {
+                                    logger.Info("Удаление исходного файла: " + files[i]);
+                                    files[i].Delete();
+                                }
                             }
 
                             db_ToYandex.Items.Refresh();
@@ -164,6 +172,8 @@ namespace RadiusYandex
                     // Create a client instance
                     //IDiskApi diskApi = new DiskHttpApi(token);
 
+                    //CreateDirectoryAsync(job.ExternalPath);
+
                     //Getting information about folder /foo and all files in it
                     Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
                         new ResourceRequest
@@ -183,26 +193,30 @@ namespace RadiusYandex
                         int index = 0;
                         job.Percent = 0;
 
-                        foreach (var item in allFilesInFolder)
+                        var SortedFiles = GetSortedfilesByFilter(allFilesInFolder,job.Filter);
+
+                        foreach (var item in SortedFiles)
                         {
                             job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
                             //logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается");
                             job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается";
                             db_FromYandex.Items.Refresh();
                             //Upload file to local
-                            await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: System.IO.Path.Combine(localFolder, item.Name));
-
+                            await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: Path.Combine(localFolder, item.Name));
                             job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен";
                             logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен");
                             job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
                             db_FromYandex.Items.Refresh();
 
-                            await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
+                            if (job.DeleteFiles)
                             {
-                                Path = item.Path
-                            });
+                                await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
+                                {
+                                    Path = item.Path
+                                });
 
-                            logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                                logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                            }
 
                             index++;
                         }
@@ -250,7 +264,7 @@ namespace RadiusYandex
                 }
             }
 
-            if (Settings.Default.autoclose)
+            if (autoclose)
             {
                 Task.WaitAll();
                 upload.IsEnabled = true;
@@ -295,8 +309,6 @@ namespace RadiusYandex
                 {
 
                     uploadformatter.Serialize(fs,MainJob);
-
-                    //Console.WriteLine("Объект сериализован"); LOG
                     logger.Info("Успешное сохранение задач в файле jobs.xml");
 
                 }
@@ -332,7 +344,7 @@ namespace RadiusYandex
                 }
             }
 
-            if (Settings.Default.autoclose)
+            if (autoclose)
             {
                 Task.WaitAll();
                 logger.Info("Автозавершение работы приложения по окончанию всех задач");
@@ -419,14 +431,14 @@ namespace RadiusYandex
         {
             try
             {
-                IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+                IDiskApi TestdiskApi = new DiskHttpApi(Settings.Default.token);
                 logger.Trace("Получение токена");
 
-                if (diskApi != null)
+                if (TestdiskApi != null)
                 {
-                    Disk result = diskApi.MetaInfo.GetDiskInfoAsync().Result;
+                    Disk result = TestdiskApi.MetaInfo.GetDiskInfoAsync().Result;
                     logger.Trace("Успешное получение токена");
-                    return diskApi;
+                    return TestdiskApi;
                 }
                 else
                 {
@@ -444,14 +456,14 @@ namespace RadiusYandex
 
                 if (yaDlg.ShowDialog() == true)
                 {
-                    IDiskApi diskApi = new DiskHttpApi(Settings.Default.token);
+                    IDiskApi TestdiskApi = new DiskHttpApi(Settings.Default.token);
                     logger.Trace("Получение токена");
 
-                    if (diskApi != null)
+                    if (TestdiskApi != null)
                     {
-                        Disk result = diskApi.MetaInfo.GetDiskInfoAsync().Result;
+                        Disk result = TestdiskApi.MetaInfo.GetDiskInfoAsync().Result;
                         logger.Trace("Успешное получение токена");
-                        return diskApi;
+                        return TestdiskApi;
                     }
                     else
                     {
@@ -473,10 +485,131 @@ namespace RadiusYandex
 
             Task.WaitAll();
 
-            if (Settings.Default.autostart)
+            if (autostart)
             {
                 RunAllTask();
             }
+        }
+
+        /// <summary>
+        /// Фильтр файлов на гугл диске
+        /// </summary>
+        /// <param name="files"></param>
+        HashSet<Resource> GetSortedfilesByFilter(IEnumerable<Resource> files,string filter = "*.*")
+        {
+            //string search = "*.docx|*.doc|Для проекта.*";
+
+            List<string> filenames = new List<string>();
+            List<string> extensions = new List<string>();
+
+            var searcharray = filter.Split('|');
+
+            foreach(var item in searcharray)
+            {
+                var newitems = item.Split('.');
+
+                filenames.Add(newitems[0]);
+                extensions.Add("."+newitems[1]);
+            }
+
+
+            HashSet<Resource> sortedfiles = new HashSet<Resource>();
+
+            for (int i = 0; i < filenames.Count; i++)
+            {
+                foreach (var file in files)
+                {
+                    string filename = Path.GetFileNameWithoutExtension(file.Name);
+                    string extension = Path.GetExtension(file.Name);
+
+                    if (filenames[i] == "*" && extensions[i] == "*")
+                    {
+                        sortedfiles.Add(file);
+                    }
+                    if (filenames[i] == filename && extensions[i] == extension)
+                    {
+                        sortedfiles.Add(file);
+                    }
+                    if(filenames[i] == "*" && extensions[i] == extension)
+                    {
+                        sortedfiles.Add(file);
+                    }
+                    if (filenames[i] == "*" && (extensions[i].Length >= 2 && extensions[i].Contains("*")))
+                    {
+                        if (extension.Contains(extensions[i].Remove(extensions[i].Length - 1)))
+                        {
+                            sortedfiles.Add(file);
+                        }
+                    }
+                    if (filenames[i] == filename && extensions[i] == "*")
+                    {
+                        sortedfiles.Add(file);
+                    }
+                    if ((filenames[i].Length >= 2 && filenames[i].Contains("*")) && extensions[i] == "*")
+                    {
+                        if (filename.Contains(filenames[i].Remove(filenames[i].Length - 1)))
+                        {
+                            sortedfiles.Add(file);
+                        }
+                    }
+                    if ((filenames[i].Length >= 2 && filenames[i].Contains("*")) && (extensions[i].Length >= 2 && extensions[i].Contains("*")))
+                    {
+                        if (filename.Contains(filenames[i].Remove(filenames[i].Length - 1)) && extension.Contains(extensions[i].Remove(extensions[i].Length - 1)))
+                        {
+                            sortedfiles.Add(file);
+                        }
+                    }
+
+                    if ((filenames[i].Length >= 2 && filenames[i].Contains("*")) && extensions[i] == extension)
+                    {
+                        if (filename.Contains(filenames[i].Remove(filenames[i].Length - 1)))
+                        {
+                            sortedfiles.Add(file);
+                        }
+                    }
+
+                    if (filenames[i] == filename && (extensions[i].Length >= 2 && extensions[i].Contains("*")))
+                    {
+                        if (extension.Contains(extensions[i].Remove(extensions[i].Length - 1)))
+                        {
+                            sortedfiles.Add(file);
+                        }
+                    }
+                }
+            }
+
+            return sortedfiles;
+        }
+
+
+        async void CreateDirectoryAsync(string Path)
+        {
+            string[] paths = Path.Split('/');
+
+            string currentpath = "";
+            foreach (string path in paths)
+            {
+                currentpath += "/"+path;
+
+                try
+                {
+                    Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
+                        new ResourceRequest
+                        {
+                            Path = currentpath, //Folder on Yandex Disk
+                        });
+
+                }
+                catch (Exception ex)
+                {
+                    await DiskApi.Commands.CreateDictionaryAsync
+                    (
+                        path: currentpath
+                    );
+                }
+            }
+
+            Task.WaitAll();
         }
     }
 }

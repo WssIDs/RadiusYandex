@@ -54,10 +54,13 @@ namespace RadiusYandex.Windows
                 "9446b005f22f4a5592b5a78d250551d2"
             );
 
-            OAuthManager.RegisterClient
-            (
-                client
-            );
+            if (!OAuthManager.IsRegisteredClient("Yandex"))
+            {
+                OAuthManager.RegisterClient
+                (
+                    client
+                );
+            }
 
             yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
         }

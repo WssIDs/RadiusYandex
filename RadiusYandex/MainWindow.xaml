@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex"
         mc:Ignorable="d"
-        Title="RadiusYandex" Height="450" Width="800" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
+        Title="RadiusYandex" Height="450" Width="955.722" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -23,6 +23,8 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Локальный каталог" Width="*" Binding="{Binding LocalPath}" />
                 <DataGridTextColumn Header="Каталог Яндекс.Диска" Width="*" Binding="{Binding ExternalPath}"/>
+                <DataGridTextColumn Header="Фильтр" Width="*" Binding="{Binding Filter}"/>
+                <DataGridCheckBoxColumn Header="Удаление исходных файлов" Width="*" Binding="{Binding DeleteFiles}"/>
                 <DataGridTemplateColumn Header="Процент загрузки" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -39,6 +41,8 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Локальный каталог" Width="*" Binding="{Binding LocalPath}" />
                 <DataGridTextColumn Header="Каталог Яндекс.Диска" Width="*" Binding="{Binding ExternalPath}"/>
+                <DataGridTextColumn Header="Фильтр" Width="*" Binding="{Binding Filter}"/>
+                <DataGridCheckBoxColumn Header="Удаление исходных файлов" Width="*" Binding="{Binding DeleteFiles}"/>
                 <DataGridTemplateColumn Header="Процент загрузки" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
