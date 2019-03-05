@@ -1,8 +1,12 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -13,8 +17,24 @@ namespace RadiusYandex
     /// </summary>
     public partial class App : Application
     {
+        private static Mutex _m;
+        Logger logger = LogManager.GetCurrentClassLogger();
+
         public void App_Startup(object sender, StartupEventArgs e)
         {
+            bool isNew;
+
+            string guid = Marshal.GetTypeLibGuidForAssembly(Assembly.GetExecutingAssembly()).ToString();
+
+            _m = new Mutex(true, guid, out isNew);
+
+            if (!isNew)
+            {
+                logger.Error("Попытка запуска второй копии приложения. Запуск более одной копии приложения невозможен.");
+                logger.Info("Вторая копия приложения будет закрыта");
+                Application.Current.Shutdown();
+            }
+
             // Application is running
             // Process command line args
             bool startminimized = false;

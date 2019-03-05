@@ -39,8 +39,6 @@ namespace RadiusYandex.Windows
                 }
                 else
                 {
-                    // ошибка
-                    //MessageBox.Show(result.ErrorInfo.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error); LOG
                     logger.Error(result.ErrorInfo.Message);
                 }
             }

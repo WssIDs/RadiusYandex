@@ -13,13 +13,10 @@ using YandexDisk.Client.Protocol;
 using RadiusYandex.Properties;
 using System.IO;
 using System.Xml.Serialization;
-using System.Collections.ObjectModel;
 
 using RadiusYandex.Models;
 using System.Xml;
 using NLog;
-using System.Runtime.InteropServices;
-using System.Reflection;
 
 namespace RadiusYandex
 {
@@ -30,74 +27,61 @@ namespace RadiusYandex
     {
         public bool autostart = false;
         public bool autoclose = false;
-        //ObservableCollection<Job> jobs = new ObservableCollection<Job>();
-        //ObservableCollection<Job> downloadjobs = new ObservableCollection<Job>();
 
         public SavedJob MainJob = new SavedJob();
         DiskInfo diskInfo = new DiskInfo();
-        Mutex mutexObj;
         Logger logger = LogManager.GetCurrentClassLogger();
-
         IDiskApi DiskApi;
 
         public MainWindow()
         {
-            bool existed;
-            // получаем GIUD приложения
-            string guid = Marshal.GetTypeLibGuidForAssembly(Assembly.GetExecutingAssembly()).ToString();
+            InitializeComponent();
 
-            mutexObj = new Mutex(true, guid, out existed);
-            if (existed)
+            logger.Trace("Запуск приложения");
+
+            if (File.Exists("jobs.xml"))
             {
-                InitializeComponent();
+                // передаем в конструктор тип класса
+                XmlSerializer formatter = new XmlSerializer(typeof(SavedJob));
 
-                logger.Trace("Запуск приложения");
-
-                if (File.Exists("jobs.xml"))
+                // десериализация
+                using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
                 {
-                    // передаем в конструктор тип класса
-                    XmlSerializer formatter = new XmlSerializer(typeof(SavedJob));
-
-                    // десериализация
-                    using (FileStream fs = new FileStream("jobs.xml", FileMode.OpenOrCreate))
+                    XmlReader reader = new XmlTextReader(fs);
+                    if (formatter.CanDeserialize(reader))
                     {
-                        XmlReader reader = new XmlTextReader(fs);
-                        if (formatter.CanDeserialize(reader))
-                        {
-                            SavedJob newjob = (SavedJob)formatter.Deserialize(reader);
+                        SavedJob newjob = (SavedJob)formatter.Deserialize(reader);
 
-                            if (newjob != null)
-                            {
-                                MainJob.UploadJobs = newjob.UploadJobs;
-                                MainJob.DownloadJobs = newjob.DownloadJobs;
-                            }
+                        if (newjob != null)
+                        {
+                            MainJob.UploadJobs = newjob.UploadJobs;
+                            MainJob.DownloadJobs = newjob.DownloadJobs;
                         }
                     }
                 }
+            }
 
-                db_ToYandex.DataContext = MainJob.UploadJobs;
-                db_FromYandex.DataContext = MainJob.DownloadJobs;
-            }
-            else
-            {
-                MessageBox.Show("Приложение уже запущено! Запуск более одной копии приложения невозможен", "Ошибка",MessageBoxButton.OK, MessageBoxImage.Error);
-                logger.Error("Попытка запуска второй копии приложения");
-                Close();
-            }
+            db_ToYandex.DataContext = MainJob.UploadJobs;
+            db_FromYandex.DataContext = MainJob.DownloadJobs;
         }
 
         async Task UploadSample(string token = "")
         {
+            logger.Info("");
+            logger.Info("---------------- Инициализация задач по загрузке на Яндекс.Диск ----------------");
+
             if (MainJob.UploadJobs != null)
             {
                 for (int n = 0; n < MainJob.UploadJobs.Count; n++)
                 {
+                    logger.Info("");
+                    logger.Info("----- Запуск задачи " + MainJob.UploadJobs[n].ID + " -----");
+
                     DirectoryInfo dirInfo = new DirectoryInfo(MainJob.UploadJobs[n].LocalPath);
 
                     if (dirInfo != null)
                     {
                         List<FileInfo> files = MainJob.UploadJobs[n].Filter.Split('|').SelectMany(filter => dirInfo.GetFiles(filter,SearchOption.TopDirectoryOnly)).ToList();
-
 
                         //CreateDirectoryAsync(MainJob.UploadJobs[n].ExternalPath);
 
@@ -106,73 +90,74 @@ namespace RadiusYandex
                             MainJob.UploadJobs[n].Status = "Загрузка...";
                             db_ToYandex.Items.Refresh();
                             upload.IsEnabled = false;
-                            db_ToYandex.IsEnabled = false;
+                            db_ToYandex.IsReadOnly = true;
                             MainJob.UploadJobs[n].Percent = 0;
-                            //You should have oauth token from Yandex Passport.
-                            //See https://tech.yandex.ru/oauth/
-                            //string oauthToken = "AQAAAAAYlmlrAADLWyLT7ciABU3uoL5tD-_sRcQ";
-
-                            // Create a client instance
-                            //IDiskApi diskApi = new DiskHttpApi(token);
 
                             for (int i = 0; i < files.Count; i++)
                             {
                                 MainJob.UploadJobs[n].Percent = (i + 1) * 100 / files.Count;
-                                MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается";
+                                MainJob.UploadJobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name + " Загрузка";
                                 db_ToYandex.Items.Refresh();
-
-                                //logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружается");
-                                //Upload file from local
 
                                 await DiskApi.Files.UploadFileAsync(path: "/" + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name,
                                                                     overwrite: true,
                                                                     localFile: files[i].FullName,
                                                                     cancellationToken: CancellationToken.None);
 
-                                MainJob.UploadJobs[n].Status = i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен";
-                                logger.Info(i + 1 + " из " + files.Count + " - Файл : " + files[i].FullName + " - Загружен");
+                                MainJob.UploadJobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name + " Загружен";
+                                logger.Info(i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.UploadJobs[n].ExternalPath + "/" + files[i].Name + " Загружен");
                                 MainJob.UploadJobs[n].Percent = (i+1) * 100 / files.Count;
                                 db_ToYandex.Items.Refresh();
 
                                 if (MainJob.UploadJobs[n].DeleteFiles)
                                 {
-                                    logger.Info("Удаление исходного файла: " + files[i]);
+                                    logger.Info("Удаление файла из локального каталога: " + files[i].FullName);
                                     files[i].Delete();
                                 }
                             }
 
                             db_ToYandex.Items.Refresh();
-                            logger.Info("Все файлы загружены на Яндекс.Диск");
+                            logger.Info("----- Успешное выполнение задачи " + MainJob.UploadJobs[n].ID + " -----");
                             MainJob.UploadJobs[n].Status = "Выполнено";
                             MainJob.UploadJobs[n].Percent = 100;
                             upload.IsEnabled = true;
-                            db_ToYandex.IsEnabled = true;
+                            db_ToYandex.IsReadOnly = false;
                         }
                         else
                         {
-                            Logger logger = LogManager.GetCurrentClassLogger();
-                            //System.Windows.MessageBox.Show("Файлы в директории отсутствуют"); LOG
                             logger.Warn("Файлы в директории отсутствуют");
+                            logger.Info("----- Задача " + MainJob.UploadJobs[n].ID + " отменена -----");
                         }
+
+                        logger.Info("");
                     }
                 }
             }
+            else
+            {
+                logger.Info("Отсутствуют задачи по загрузке на Яндекс.Диск");
+            }
+
+            logger.Info("---------------- Завершение задач по загрузке на Яндекс.Диск ----------------");
+            logger.Info("");
         }
 
         async Task DownloadAllFilesInFolder(string token = "")
         {
+            logger.Info("");
+            logger.Info("---------------- Инициализация задач по загрузке с Яндекс.Диска ----------------");
+
             if (MainJob.DownloadJobs != null)
             {
+
                 foreach (Job job in MainJob.DownloadJobs)
                 {
+                    logger.Info("");
+                    logger.Info("----- Запуск задачи "+job.ID+" -----");
+
                     db_FromYandex.Items.Refresh();
                     upload.IsEnabled = false;
-                    db_FromYandex.IsEnabled = false;
-
-                    // Create a client instance
-                    //IDiskApi diskApi = new DiskHttpApi(token);
-
-                    //CreateDirectoryAsync(job.ExternalPath);
+                    db_FromYandex.IsReadOnly = true;
 
                     //Getting information about folder /foo and all files in it
                     Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
@@ -197,25 +182,32 @@ namespace RadiusYandex
 
                         foreach (var item in SortedFiles)
                         {
-                            job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
-                            //logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается");
-                            job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружается";
-                            db_FromYandex.Items.Refresh();
-                            //Upload file to local
-                            await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: Path.Combine(localFolder, item.Name));
-                            job.Status = index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен";
-                            logger.Info(index + 1 + " из " + allFilesInFolder.Count() + " - Файл : " + item.Name + " - Загружен");
-                            job.Percent = (index + 1) * 100 / allFilesInFolder.Count();
+                            job.Percent = (index + 1) * 100 / SortedFiles.Count();
+                            job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : "+ job.LocalPath + "\\" + item.Name + " Загрузка";
                             db_FromYandex.Items.Refresh();
 
-                            if (job.DeleteFiles)
+                            //Download file to local
+                            if (!File.Exists(job.LocalPath + "\\" + item.Name))
                             {
-                                await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
-                                {
-                                    Path = item.Path
-                                });
+                                await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: Path.Combine(localFolder, item.Name));
+                                job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен";
+                                logger.Info(index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен");
+                                job.Percent = (index + 1) * 100 / SortedFiles.Count();
+                                db_FromYandex.Items.Refresh();
 
-                                logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                                if (job.DeleteFiles)
+                                {
+                                    await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
+                                    {
+                                        Path = item.Path
+                                    });
+
+                                    logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                                }
+                            }
+                            else
+                            {
+                                logger.Error("Файл с именем: \"" + item.Name + "\" существует в директории: " + job.LocalPath);
                             }
 
                             index++;
@@ -224,20 +216,29 @@ namespace RadiusYandex
 
                     db_FromYandex.Items.Refresh();
                     job.Status = "Выполнено";
-                    logger.Info("Все файлы загружены на локальный компьютер");
                     job.Percent = 100;
-                    db_FromYandex.IsEnabled = true;
+                    db_FromYandex.IsReadOnly = false;
 
+                    logger.Info("Очистка корзины на Яндекс.Диске");
                     await DiskApi.Commands.EmptyTrashAsync(path: "/");
+
+                    logger.Info("----- Успешное выполнение задачи " + job.ID + " -----");
+                    logger.Info("");
                 }
             }
+            else
+            {
+                logger.Info("Отсутствуют задачи по загрузке с Яндекс.Диска");
+            }
+
+            logger.Info("---------------- Завершение задач по загрузке с Яндекс.Диска ----------------");
+            logger.Info("");
         }
 
         private async void Upload_Click(object sender, RoutedEventArgs e)
         {
             Logger logger = LogManager.GetCurrentClassLogger();
 
-            //MessageBox.Show(client.AccessToken);
             try
             {
                 await UploadSample(Settings.Default.token);
@@ -245,8 +246,6 @@ namespace RadiusYandex
             }
             catch (Exception ex)
             {
-                //System.Windows.MessageBox.Show(ex.Message); LOG
-
                 logger.Warn(ex.Message);
 
                 YandexAuthWindow yaDlg = new YandexAuthWindow();
@@ -259,7 +258,6 @@ namespace RadiusYandex
                 }
                 else
                 {
-                    //System.Windows.MessageBox.Show(ex.Message); LOG
                     logger.Warn(ex.Message);
                 }
             }
@@ -610,6 +608,38 @@ namespace RadiusYandex
             }
 
             Task.WaitAll();
+        }
+
+        //  КНОПКИ МЕНЮ
+
+           
+        private void Exit_mi_Click(object sender, RoutedEventArgs e)
+        {
+            // Выход из приложения
+            Close();
+        }
+
+        private void Settings_mi_Click(object sender, RoutedEventArgs e)
+        {
+            /// Показать окно настройки
+        }
+
+        private void Help_mi_Click(object sender, RoutedEventArgs e)
+        {
+            /// Вызвать справку
+        }
+
+        private void About_mi_Click(object sender, RoutedEventArgs e)
+        {
+            /// Показать окно "О нас"
+
+            AboutWindow aboutwnd = new AboutWindow();
+
+            if (aboutwnd != null)
+            {
+                aboutwnd.Owner = this;
+                aboutwnd.ShowDialog();
+            }
         }
     }
 }
