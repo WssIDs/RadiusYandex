@@ -5,9 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
-        Title="О нас" Height="450" Width="621.552" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
+        Title="О нас" Height="250" Width="459.552" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="128" Margin="10,64,0,0" VerticalAlignment="Top" Width="128" Source="/RadiusYandex;component/RadiusYandex.ico"/>
+        <Image HorizontalAlignment="Left" Height="173" Margin="10,10,0,0" VerticalAlignment="Top" Width="108" Source="/RadiusYandex;component/RadiusYandex.ico"/>
+        <TextBlock Margin="140,64,10,0" TextWrapping="Wrap" Text="Разработчик: Volodko Vitaly" VerticalAlignment="Top"/>
+        <TextBlock Margin="140,10,0,0" TextWrapping="Wrap" Text="Radius" VerticalAlignment="Top" Height="49" FontSize="24" HorizontalAlignment="Left" Foreground="#FF0097FF" FontWeight="Bold" Width="77"/>
+        <TextBlock Margin="217,10,0,0" TextWrapping="Wrap" Text="Yandex" VerticalAlignment="Top" Height="49" FontSize="24" FontWeight="Bold" Foreground="Red" Panel.ZIndex="100" HorizontalAlignment="Left" Width="227"/>
+        <TextBlock Margin="140,85,10,0" TextWrapping="Wrap" Text="Версия: 1.0.0.0" VerticalAlignment="Top"/>
+        <Button Content="OK" Margin="200,0,179,10" Height="20" VerticalAlignment="Bottom" IsDefault="True" Click="Button_Click"/>
+        <TextBlock Margin="140,106,10,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="2019"/><Run Text="г."/></TextBlock>
 
     </Grid>
 </Window>

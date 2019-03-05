@@ -15,7 +15,6 @@ namespace RadiusYandex.Models
     {
         public Job()
         {
-
         }
 
         public Job (Guid id, string localpath, string externalpath)
@@ -25,6 +24,7 @@ namespace RadiusYandex.Models
             ExternalPath = externalpath;
         }
 
+        public bool Active { get; set; }
         public Guid ID { get; set; }
         public string LocalPath { get; set; }
         public string ExternalPath { get; set; }
