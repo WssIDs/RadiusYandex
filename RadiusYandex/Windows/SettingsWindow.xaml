@@ -1,0 +1,32 @@
+﻿<Window x:Name="Settings" x:Class="RadiusYandex.Windows.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RadiusYandex.Windows"
+        mc:Ignorable="d"
+        Title="Настройки приложения" Height="342.672" Width="633.189" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid>
+
+        <TabControl Margin="5" TabStripPlacement="Left">
+            <TabItem Header="Основные">
+                <Grid>
+                    <StackPanel Orientation="Vertical" Margin="5" Width="auto">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Токен доступа яндекс" Margin="5"/>
+                            <TextBlock Text="{Binding token}" Margin="5"/>
+                            <Button Margin="3,0,3,0" Content="Выйти" Name="deletetoken_bt" Click="Deletetoken_bt_Click"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Margin="5,0,3,0" Content="Авторизация" Name="autorize_bt" Click="Autorize_bt_Click"/>
+
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Дополнительные">
+                <Grid/>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

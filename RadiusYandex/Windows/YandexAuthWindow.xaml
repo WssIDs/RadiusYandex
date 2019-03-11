@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
-        Title="Авторизация приложения в Яндекс" Height="629.238" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="Yandexauthwindow_Loaded" Icon="/RadiusYandex;component/YandexDisk.ico">
+        Title="Авторизация приложения в Яндекс" Height="629.238" Width="800" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" Loaded="Yandexauthwindow_Loaded" Icon="/RadiusYandex;component/YandexDisk.ico" Closing="Yandexauthwindow_Closing">
     <Grid>
-        <WebBrowser Name="yandexweb" LoadCompleted="Yandexweb_LoadCompleted"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <WebBrowser Grid.Row="0" Name="yandexweb" LoadCompleted="Yandexweb_LoadCompleted"/>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right"/>
     </Grid>
 </Window>

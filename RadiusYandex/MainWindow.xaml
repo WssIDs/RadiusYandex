@@ -5,57 +5,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex"
         mc:Ignorable="d"
-        Title="RadiusYandex" Height="450" Width="955.722" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
+        Title="RadiusYandex" Height="417" Width="{Binding width}" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
     <Window.Resources>
-        <!-- A brush -->
-        <LinearGradientBrush x:Key="BgBrush1" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Offset="0" Color="#888888"/>
-            <GradientStop Offset="1" Color="#FFFFF86E"/>
-        </LinearGradientBrush>
-
-        <!-- Your row style -->
-        <Style x:Key="HighlightRow" TargetType="{x:Type DataGridRow}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding StatusGood}" Value="Hold">
-                    <Setter Property="Background" Value="{StaticResource BgBrush1}" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Menu Grid.Row="0">
-            <MenuItem Header="Файл">
-                <MenuItem Name="exit_mi" Header="Выход" HorizontalAlignment="Left" Width="140" Click="Exit_mi_Click"/>
-            </MenuItem>
-            <MenuItem Header="Инструменты">
-                <MenuItem Name="settings_mi" Header="Настройки" HorizontalAlignment="Left" Width="140" Click="Settings_mi_Click"/>
-            </MenuItem>
-            <MenuItem Header="Помощь">
-                <MenuItem Name="help_mi" Header="Справка" HorizontalAlignment="Left" Width="140" Click="Help_mi_Click"/>
-                <MenuItem Name="about_mi" Header="О нас" HorizontalAlignment="Left" Width="140" Click="About_mi_Click"/>
-            </MenuItem>
-        </Menu>
-        <TextBlock TextWrapping="Wrap" Text="Загрузка на Яндекс.Диск" HorizontalAlignment="Stretch" Grid.Row="1" Margin="5,5,55,5"/>
-        <Button Name="addToYa_bt"  Content="+" Click="AddToYa_bt_Click" HorizontalAlignment="Right" Grid.Row="1" Margin="5,5,30,5" Width="20"/>
-        <Button Name="remToYa_bt" Content="-" Click="RemToYa_bt_Click" HorizontalAlignment="Right" Grid.Row="1" Margin="5,5,5,5" Width="20"/>
-        <DataGrid Name="db_ToYandex" ItemsSource="{Binding}" CanUserDeleteRows="False" CanUserAddRows="False" AutoGenerateColumns="False" VerticalAlignment="Stretch" Grid.Row="2" Margin="5" HorizontalScrollBarVisibility="Visible" SelectionMode="Single">
+        <DockPanel Grid.Row="0">
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_Файл">
+                    <MenuItem Name="settings_mi" Header="Настройки" HorizontalAlignment="Stretch" Click="Settings_mi_Click"/>
+                    <MenuItem Name="exit_mi" Header="Выход" HorizontalAlignment="Stretch" Click="Exit_mi_Click"/>
+                </MenuItem>
+                <MenuItem Header="_Задания">
+                    <MenuItem Name="addtask_mi" Header="Добавить задание" HorizontalAlignment="Stretch" Click="Addtask_mi_Click" />
+                    <MenuItem Name="edittask_mi" Header="Изменить задание" HorizontalAlignment="Stretch" Click="Edittask_mi_Click" />
+                    <MenuItem Name="runall_mi" Header="Запустить все задания" HorizontalAlignment="Stretch" Click="Upload_Click" />
+                </MenuItem>
+                <MenuItem Header="_Помощь">
+                    <MenuItem Name="updater_mi" Header="Проверить обновление" HorizontalAlignment="Stretch" Click="Updater_mi_Click"/>
+                    <MenuItem Name="about_mi" Header="О нас" HorizontalAlignment="Stretch" Click="About_mi_Click"/>
+                </MenuItem>
+            </Menu>
+        </DockPanel>
+        <DataGrid Name="db_ToYandex" ItemsSource="{Binding}" CanUserDeleteRows="False" CanUserAddRows="False" IsReadOnly="True" HeadersVisibility="All" AutoGenerateColumns="False" VerticalAlignment="Stretch" Grid.Row="1" Margin="5" MinRowHeight="20" CanUserResizeRows="False" PreviewKeyDown="Db_ToYandex_PreviewKeyDown">
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="Row_DoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Активно" Width="auto" Binding="{Binding Active}"/>
-                <DataGridTextColumn Header="Локальный каталог" Width="auto" Binding="{Binding LocalPath}"/>
-                <DataGridTextColumn Header="Каталог Яндекс.Диска" Width="auto" Binding="{Binding ExternalPath}"/>
-                <DataGridTextColumn Header="Фильтр" Width="auto" Binding="{Binding Filter}"/>
-                <DataGridCheckBoxColumn Header="Удаление файлов" Width="auto" Binding="{Binding DeleteFiles}"/>
+                <DataGridCheckBoxColumn Header="Активно" Width="auto" Binding="{Binding Active}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Тип" Width="auto" Binding="{Binding Type}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Локальный каталог" Width="auto" Binding="{Binding LocalPath}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Каталог Яндекс.Диска" Width="auto" Binding="{Binding ExternalPath}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Фильтр" Width="auto" Binding="{Binding Filter}"  IsReadOnly="True"/>
+                <DataGridCheckBoxColumn Header="Удаление файлов" Width="auto" Binding="{Binding DeleteFiles}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Отправляемые файлы" Width="*" Binding="{Binding Status}" IsReadOnly="True"/>
-                <DataGridTemplateColumn Header="Статус" Width="120">
+                <DataGridTemplateColumn Header="Статус" Width="120" CanUserResize="False">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <ProgressBar Value="{Binding Path=Percent}" Minimum="0" Maximum="100" ToolTipService.ToolTip="{Binding Percent}"/>
@@ -64,29 +55,7 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <TextBlock TextWrapping="Wrap" Text="Загрузка с Яндекс.Диска" Grid.Row="3" Margin="5,5,55,5" HorizontalAlignment="Stretch"/>
-        <Button x:Name="addFromYa_bt" Content="+" Click="AddFromYa_bt_Click" Grid.Row="3" Margin="5,5,30,5" Width="20" HorizontalAlignment="Right"/>
-        <Button x:Name="remFromYa_bt" Content="-" Click="RemFromYa_bt_Click" Grid.Row="3" Margin="5,5,5,5" Width="20" HorizontalAlignment="Right"/>
-        <DataGrid x:Name="db_FromYandex" ItemsSource="{Binding}" Margin="5" CanUserDeleteRows="False" CanUserAddRows="False" AutoGenerateColumns="False" Grid.Row="4">
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Активно" Width="auto" Binding="{Binding Active}"/>
-                <DataGridTextColumn Header="Локальный каталог" Width="auto" Binding="{Binding LocalPath}" />
-                <DataGridTextColumn Header="Каталог Яндекс.Диска" Width="auto" Binding="{Binding ExternalPath}"/>
-                <DataGridTextColumn Header="Фильтр" Width="auto" Binding="{Binding Filter}"/>
-                <DataGridCheckBoxColumn Header="Удаление файлов" Width="auto" Binding="{Binding DeleteFiles}"/>
-                <DataGridTextColumn Header="Принимаемые файлы" Width="*" Binding="{Binding Status}" IsReadOnly="True"/>
-                <DataGridTemplateColumn Header="Статус" Width="120">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ProgressBar Value="{Binding Percent}" Minimum="0" Maximum="100" ToolTip="{Binding Percent}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <StackPanel Orientation="Horizontal" Grid.Row="4" HorizontalAlignment="Right" Margin="5">
-        </StackPanel>
-        <StatusBar Grid.Row="5" Name="statusdisk_sb">
+        <StatusBar Grid.Row="2" Name="statusdisk_sb">
             <StatusBarItem Margin="5">
                 <TextBlock Name="usedspace_tb" Text="0"/>
             </StatusBarItem>
@@ -94,7 +63,7 @@
                 <TextBlock Name="totalspace_tb" Text="0"/>
             </StatusBarItem>
             <StatusBarItem Margin="5" HorizontalAlignment="Right">
-                <Button Content="Выполнить" Name="upload" Click="Upload_Click" Padding="5,0,5,0"/>
+                <StackPanel Orientation="Horizontal"/>
             </StatusBarItem>
         </StatusBar>
     </Grid>

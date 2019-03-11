@@ -148,6 +148,12 @@
     <Compile Include="Windows\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\TaskWindow.xaml.cs">
+      <DependentUpon>TaskWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\YandexAuthWindow.xaml.cs">
       <DependentUpon>YandexAuthWindow.xaml</DependentUpon>
     </Compile>
@@ -168,6 +174,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\TaskWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

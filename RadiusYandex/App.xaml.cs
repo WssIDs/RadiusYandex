@@ -1,4 +1,5 @@
 ﻿using NLog;
+using RadiusYandex.Properties;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

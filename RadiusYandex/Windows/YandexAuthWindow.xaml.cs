@@ -34,13 +34,17 @@ namespace RadiusYandex.Windows
                     //показываем данные пользователя
                     Settings.Default.token = result.AccessToken;
                     Settings.Default.Save();
-                    DialogResult = true;
-                    this.Close();
+                    //DialogResult = true;
+                    //this.Close();
                 }
                 else
                 {
                     logger.Error(result.ErrorInfo.Message);
                 }
+            }
+            else if (e.Uri.AbsoluteUri == "https://yandex.by/?nr=17961")
+            {
+                yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
             }
         }
 
@@ -61,6 +65,27 @@ namespace RadiusYandex.Windows
             }
 
             yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
+        }
+
+        private void Accept_bt_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void Changeprofile_bt_Click(object sender, RoutedEventArgs e)
+        {
+            yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
+        }
+
+        private void Yandexauthwindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if(string.IsNullOrEmpty(Settings.Default.token))
+            {
+                DialogResult = false;
+            }
+            else
+            {
+                DialogResult = true;
+            }
         }
     }
 }

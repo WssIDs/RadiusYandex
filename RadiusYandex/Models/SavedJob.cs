@@ -13,16 +13,21 @@ namespace RadiusYandex.Models
     {
         public SavedJob()
         {
-            UploadJobs = new ObservableCollection<Job>();
-            DownloadJobs = new ObservableCollection<Job>();
+            //UploadJobs = new ObservableCollection<Job>();
+           // DownloadJobs = new ObservableCollection<Job>();
+            Jobs = new ObservableCollection<Job>();
         }
 
-        [XmlArray("UploadJobs")]
+        [XmlArray("Jobs")]
         [XmlArrayItem("Job")]
-        public ObservableCollection<Job> UploadJobs { get; set;}
+        public ObservableCollection<Job> Jobs { get; set; }
 
-        [XmlArray("DownloadJobs")]
-        [XmlArrayItem("Job")]
-        public ObservableCollection<Job> DownloadJobs { get; set; }
+        //[XmlArray("UploadJobs")]
+        //[XmlArrayItem("Job")]
+        //public ObservableCollection<Job> UploadJobs { get; set;}
+
+        //[XmlArray("DownloadJobs")]
+        //[XmlArrayItem("Job")]
+        //public ObservableCollection<Job> DownloadJobs { get; set; }
     }
 }
