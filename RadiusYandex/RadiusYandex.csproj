@@ -143,6 +143,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Models\DiskInfo.cs" />
+    <Compile Include="Models\Internet.cs" />
     <Compile Include="Models\Job.cs" />
     <Compile Include="Models\SavedJob.cs" />
     <Compile Include="Windows\AboutWindow.xaml.cs">

@@ -4,6 +4,8 @@ using System.Windows;
 using RadiusYandex.Properties;
 using System.Windows.Navigation;
 using NLog;
+using RadiusYandex.Models;
+using System;
 
 namespace RadiusYandex.Windows
 {
@@ -23,28 +25,45 @@ namespace RadiusYandex.Windows
 
         private void Yandexweb_LoadCompleted(object sender, NavigationEventArgs e)
         {
-            // ожидаем, когда появится адрес с результатами авторизации
-            if (e.Uri.Query.IndexOf("code=") != -1 || e.Uri.Fragment.IndexOf("code=") != -1 || e.Uri.Query.IndexOf("oauth_verifier=") != -1)
+            if (Internet.IsConnectedToInternet())
             {
-                // проверяем адрес
-                var result = OAuthWeb.VerifyAuthorization(e.Uri.ToString());
-                if (result.IsSuccessfully)
+
+                // ожидаем, когда появится адрес с результатами авторизации
+                if (e.Uri.Query.IndexOf("code=") != -1 || e.Uri.Fragment.IndexOf("code=") != -1 || e.Uri.Query.IndexOf("oauth_verifier=") != -1)
                 {
-                    logger.Info("Успешная проверка авторизации");
-                    //показываем данные пользователя
-                    Settings.Default.token = result.AccessToken;
-                    Settings.Default.Save();
-                    //DialogResult = true;
-                    //this.Close();
+                    // проверяем адрес
+                    AuthorizationResult result = OAuthWeb.VerifyAuthorization(e.Uri.ToString());
+                    if (result.IsSuccessfully)
+                    {
+                        logger.Info("Успешная проверка авторизации");
+                        //показываем данные пользователя
+                        Settings.Default.token = result.AccessToken;
+                        Settings.Default.Save();
+
+                        if (Settings.Default.authorizeclose)
+                        {
+                            DialogResult = true;
+                            this.Close();
+                        }
+                    }
+                    else
+                    {
+                        logger.Error(result.ErrorInfo.Message);
+                    }
                 }
-                else
+                else if (e.Uri.AbsoluteUri == "https://yandex.by/?nr=17961")
                 {
-                    logger.Error(result.ErrorInfo.Message);
+                    yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
                 }
             }
-            else if (e.Uri.AbsoluteUri == "https://yandex.by/?nr=17961")
+            else
             {
-                yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
+                logger.Fatal("Отсутствует интернет соединение.");
+                logger.Fatal("Приложение будет закрыто.");
+                DialogResult = false;
+                this.Close();
+
+                Environment.Exit(-1);
             }
         }
 

@@ -70,5 +70,17 @@ namespace RadiusYandex.Properties {
                 this["maximized"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool authorizeclose {
+            get {
+                return ((bool)(this["authorizeclose"]));
+            }
+            set {
+                this["authorizeclose"] = value;
+            }
+        }
     }
 }
