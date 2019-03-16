@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadiusYandex", "RadiusYandex\RadiusYandex.csproj", "{52CB045E-6BEA-4ED4-AED8-641B803E67DD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{7AF4C38F-0A86-475B-B52E-D1E1FCDB8F6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdaterCreator", "UpdaterCreator\UpdaterCreator.csproj", "{B60CF6D8-19AF-4507-82FE-0FBF2DF84340}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{52CB045E-6BEA-4ED4-AED8-641B803E67DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52CB045E-6BEA-4ED4-AED8-641B803E67DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52CB045E-6BEA-4ED4-AED8-641B803E67DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AF4C38F-0A86-475B-B52E-D1E1FCDB8F6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AF4C38F-0A86-475B-B52E-D1E1FCDB8F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AF4C38F-0A86-475B-B52E-D1E1FCDB8F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AF4C38F-0A86-475B-B52E-D1E1FCDB8F6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B60CF6D8-19AF-4507-82FE-0FBF2DF84340}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B60CF6D8-19AF-4507-82FE-0FBF2DF84340}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B60CF6D8-19AF-4507-82FE-0FBF2DF84340}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B60CF6D8-19AF-4507-82FE-0FBF2DF84340}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

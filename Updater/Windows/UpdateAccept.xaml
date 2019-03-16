@@ -1,0 +1,17 @@
+﻿<Window x:Class="Updater.UpdateAccept"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Updater"
+        mc:Ignorable="d" Height="171" Width="352" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid>
+        <Image HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Source="/Updater;component/RadiusYandex.ico"/>
+        <TextBlock HorizontalAlignment="Left" Margin="95,10,0,0" TextWrapping="Wrap" Text="Обновление доступно. Вы хотите обновить программу?" VerticalAlignment="Top" Width="241" TextAlignment="Center" FontSize="14"/>
+        <TextBlock Name="newversion_tb" HorizontalAlignment="Left" Margin="95,55,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="241" TextAlignment="Center"/>
+        <Button Name="yes_bt" Content="Да" HorizontalAlignment="Left" Margin="104,112,0,0" VerticalAlignment="Top" Width="74" Click="Yes_bt_Click"/>
+        <Button Name="no_bt" Content="Нет" HorizontalAlignment="Left" Margin="183,112,0,0" VerticalAlignment="Top" Width="74" Click="No_bt_Click"/>
+        <Button Name="details_bt" Content="Подробно" HorizontalAlignment="Left" Margin="262,112,0,0" VerticalAlignment="Top" Width="74" Click="Details_bt_Click"/>
+
+    </Grid>
+</Window>

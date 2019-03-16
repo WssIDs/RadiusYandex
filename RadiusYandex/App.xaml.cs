@@ -36,6 +36,15 @@ namespace RadiusYandex
                 Application.Current.Shutdown();
             }
 
+            // Copy user settings from previous application version if necessary
+            if (Settings.Default.updatesettings)
+            {
+                logger.Info("Обнаружена новая версия приложения "+Assembly.GetExecutingAssembly().GetName().Version.ToString()+". Восстановление настроек из предыдущей версии приложения.");
+                Settings.Default.Upgrade();
+                Settings.Default.updatesettings = false;
+                Settings.Default.Save();
+            }
+
             // Application is running
             // Process command line args
             bool startminimized = false;
@@ -63,6 +72,7 @@ namespace RadiusYandex
             {
                 mainWindow.WindowState = WindowState.Minimized;
             }
+
             mainWindow.autostart = autostart;
             mainWindow.autoclose = autoclose;
             mainWindow.Show();

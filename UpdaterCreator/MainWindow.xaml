@@ -1,0 +1,53 @@
+﻿<Window x:Class="UpdaterCreator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UpdaterCreator"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="694" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Name="mainfile_stack" Grid.Row="0" Margin="10,10,10,10">
+            <TextBlock Text="Адресс директории обновления на сервере. Пример: http://test.com/updates/" FontWeight="Bold"></TextBlock>
+            <TextBox Name="urlserver_tb" Height="23" TextWrapping="Wrap" Text="http://kletsklib.by/assets/uploads/" Margin="0,5,0,0" VerticalAlignment="Top" />
+            <TextBlock Text="ID приложения" FontWeight="Bold"></TextBlock>
+            <TextBox Name="AppID_tb" Text="{Binding Path=AppID}" ></TextBox>
+            <TextBlock Text="Описание обновления" FontWeight="Bold"></TextBlock>
+            <TextBox Name="description_tb" Text="{Binding Path=Description}" ></TextBox>
+            <TextBlock Text="Параметры запуска приложения" FontWeight="Bold"></TextBlock>
+            <TextBox Name="launchargs_tb" Text="{Binding Path=LauncArgs}" ></TextBox>
+            <Separator/>
+            <Button Name="execadd_bt" Content="Добавить исполняемый файл" Margin="0,5,0,5" Click="Execadd_bt_Click" HorizontalAlignment="Left" Padding="5,3,5,3"/>
+            <TextBlock Text="Версия" FontWeight="Bold"></TextBlock>
+            <TextBlock Name="version_tb" Text="" ></TextBlock>
+            <TextBlock Text="Путь к исполняемому файлу" FontWeight="Bold"></TextBlock>
+            <TextBlock Name="mainfilepath_tb" Text=""></TextBlock>
+            <TextBlock Text="Имя исполняемого файла" FontWeight="Bold"></TextBlock>
+            <TextBlock Name="mainfilename_tb" Text="" ></TextBlock>
+            <TextBlock Text="Полный путь на сервере к файлу" FontWeight="Bold"></TextBlock>
+            <TextBlock Name="mainfilenameurl_tb" Text="" ></TextBlock>
+            <TextBlock Text="Хэш сумма (MD5)" FontWeight="Bold"></TextBlock>
+            <TextBlock Name="mainfilehash_tb" Text="" ></TextBlock>
+        </StackPanel>
+        <Button Grid.Row="1" Name="open_bt" Content="Добавить файлы" Margin="0,10,80,5" Click="Open_bt_Click" HorizontalAlignment="Right" Padding="5,3,5,3"/>
+        <Button Grid.Row="1" Name="clear_bt" Content="Очистить" Margin="0,10,10,5" Click="Clear_bt_Click" HorizontalAlignment="Right" Padding="5,3,5,3"/>
+        <ListBox Grid.Row="2" Name="files_lb" ItemsSource="{Binding}" Margin="10,10,10,10">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="5">
+                        <TextBlock FontSize="16" Text="{Binding Path=FileName}" />
+                        <TextBlock FontSize="16" Text="{Binding Path=Url}" HorizontalAlignment="Center" />
+                        <TextBlock FontSize="16" Text="{Binding Path=Md5}" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Grid.Row="3" Name="savexml_bt" Content="Сгенерировать файлы обновления" Click="Savexml_bt_Click"/>
+    </Grid>
+</Window>

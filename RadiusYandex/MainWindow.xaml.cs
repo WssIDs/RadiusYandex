@@ -705,6 +705,15 @@ namespace RadiusYandex
         private void Updater_mi_Click(object sender, RoutedEventArgs e)
         {
             /// Вызвать Updater
+            UpdateWindow updwnd = new UpdateWindow();
+
+            if(updwnd != null)
+            {
+                if(updwnd.ShowDialog() == true)
+                {
+
+                }
+            }
         }
 
         private void Addtask_mi_Click(object sender, RoutedEventArgs e)
