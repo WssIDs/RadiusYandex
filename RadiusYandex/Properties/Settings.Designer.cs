@@ -94,5 +94,17 @@ namespace RadiusYandex.Properties {
                 this["updatesettings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://kletsklib.by/assets/uploads/")]
+        public string updateurl {
+            get {
+                return ((string)(this["updateurl"]));
+            }
+            set {
+                this["updateurl"] = value;
+            }
+        }
     }
 }

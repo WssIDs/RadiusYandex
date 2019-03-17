@@ -22,8 +22,6 @@ namespace Updater
         private IUpdatetable applicationInfo;
         private UpdateXml updateInfo;
 
-        private UpdateInfo updateInfoWnd;
-
         public UpdateAccept(IUpdatetable applicationInfo, UpdateXml updateInfo)
         {
             InitializeComponent();
@@ -55,13 +53,12 @@ namespace Updater
 
         private void Details_bt_Click(object sender, RoutedEventArgs e)
         {
-            if(updateInfoWnd == null)
-            {
-                updateInfoWnd = new UpdateInfo(applicationInfo, updateInfo);
-                updateInfoWnd.Owner = this;
+            UpdateInfo updateInfoWnd;
 
-                updateInfoWnd.ShowDialog();
-            }
+            updateInfoWnd = new UpdateInfo(applicationInfo, updateInfo);
+            updateInfoWnd.Owner = this;
+
+            updateInfoWnd.ShowDialog();
         }
     }
 }

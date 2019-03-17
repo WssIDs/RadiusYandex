@@ -20,14 +20,19 @@ using NLog;
 using System.Windows.Input;
 using System.Web.UI.WebControls;
 using System.Windows.Controls;
+using Updater;
+using System.Reflection;
+using System.Windows.Media;
 
 namespace RadiusYandex
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, IUpdatetable
     {
+        private MainUpdater updater;
+
         public bool autostart = false;
         public bool autoclose = false;
 
@@ -35,6 +40,36 @@ namespace RadiusYandex
         DiskInfo diskInfo = new DiskInfo();
         Logger logger = LogManager.GetCurrentClassLogger();
         IDiskApi DiskApi;
+
+        public string ApplicationName
+        {
+            get { return "RadiusYandex"; }
+        }
+
+        public string ApplicationID
+        {
+            get { return "RadiusYandex"; }
+        }
+
+        public Assembly ApplicationAssemby
+        {
+            get { return Assembly.GetExecutingAssembly(); }
+        }
+
+        public ImageSource ApplicationIcon
+        {
+            get { return Icon; }
+        }
+
+        public Uri UpdateXmlLocation
+        {
+            get { return new Uri(Settings.Default.updateurl+"update.xml"); }
+        }
+
+        public Window Context
+        {
+            get { return this; }
+        }
 
         public MainWindow()
         {
@@ -68,16 +103,14 @@ namespace RadiusYandex
                         if (newjob != null)
                         {
                             MainJob.Jobs = newjob.Jobs;
-                            //MainJob.UploadJobs = newjob.UploadJobs;
-                            //MainJob.DownloadJobs = newjob.DownloadJobs;
                         }
                     }
                 }
             }
 
             db_ToYandex.DataContext = MainJob.Jobs;
-            //db_ToYandex.DataContext = MainJob.UploadJobs;
-            //db_ToYandex.DataContext = MainJob.DownloadJobs;
+
+            updater = new MainUpdater(this);
         }
 
         async Task UploadSample(string token = "")
@@ -705,15 +738,7 @@ namespace RadiusYandex
         private void Updater_mi_Click(object sender, RoutedEventArgs e)
         {
             /// Вызвать Updater
-            UpdateWindow updwnd = new UpdateWindow();
-
-            if(updwnd != null)
-            {
-                if(updwnd.ShowDialog() == true)
-                {
-
-                }
-            }
+            updater.DoUpdate();
         }
 
         private void Addtask_mi_Click(object sender, RoutedEventArgs e)

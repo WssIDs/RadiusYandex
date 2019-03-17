@@ -48,13 +48,17 @@ namespace Updater
                         DownloadUpdate(update);
                     }
                 }
+                else
+                {
+                    MessageBox.Show("Обновление не требуется.\n У вас актуальная версия приложения.", "Обновление приложения", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
         }
 
         private void DownloadUpdate(UpdateXml update)
         {
             UpdateDownload updateDownloadWnd = new UpdateDownload(update.FileData, applicationInfo.ApplicationIcon);
-
+            updateDownloadWnd.Owner = applicationInfo.Context;
             var result = updateDownloadWnd.ShowDialog();
 
             if (result == true)
@@ -83,29 +87,27 @@ namespace Updater
 
         private void UpdateApplication(List<string> tempFilePaths, string currentPath, List<string> newPaths, string launchArgs)
         {
-            //string argumentfile = "/C Choice /C Y /N /D Y /T 4 & Del /F /Q \"{0}\" &  Chioce /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" {3}";
-
             for (int i = 1; i < newPaths.Count; i++)
             {
                 string argumentfiles = "/C Choice /C Y /N /D Y /T 4 & Del /F /Q \"{0}\" &  Chioce /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\"";
-                ProcessStartInfo info1 = new ProcessStartInfo();
+                ProcessStartInfo info = new ProcessStartInfo();
 
-                info1.Arguments = string.Format(argumentfiles, newPaths[i], tempFilePaths[i], newPaths[i], Path.GetDirectoryName(newPaths[i]), Path.GetFileName(newPaths[i]));
-                info1.WindowStyle = ProcessWindowStyle.Hidden;
-                info1.CreateNoWindow = true;
-                info1.FileName = "cmd.exe";
-                Process.Start(info1);
+                info.Arguments = string.Format(argumentfiles, newPaths[i], tempFilePaths[i], newPaths[i], Path.GetDirectoryName(newPaths[i]), Path.GetFileName(newPaths[i]));
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.FileName = "cmd.exe";
+                Process.Start(info);
             }
 
             string argument = "/C Choice /C Y /N /D Y /T 4 & Del /F /Q \"{0}\" &  Chioce /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" {5}";
 
-            ProcessStartInfo info = new ProcessStartInfo();
-            
-            info.Arguments = string.Format(argument, currentPath, tempFilePaths[0], newPaths[0], Path.GetDirectoryName(newPaths[0]), Path.GetFileName(newPaths[0]), launchArgs);
-            info.WindowStyle = ProcessWindowStyle.Hidden;
-            info.CreateNoWindow = true;
-            info.FileName = "cmd.exe";
-            Process.Start(info);
+            ProcessStartInfo infoMainFile = new ProcessStartInfo();
+
+            infoMainFile.Arguments = string.Format(argument, currentPath, tempFilePaths[0], newPaths[0], Path.GetDirectoryName(newPaths[0]), Path.GetFileName(newPaths[0]), launchArgs);
+            infoMainFile.WindowStyle = ProcessWindowStyle.Hidden;
+            infoMainFile.CreateNoWindow = true;
+            infoMainFile.FileName = "cmd.exe";
+            Process.Start(infoMainFile);
         }
 
         private void BackgrounWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -115,6 +117,7 @@ namespace Updater
             if(!UpdateXml.ExistsOnServer(applicationInfo.UpdateXmlLocation))
             {
                 e.Cancel = true;
+                MessageBox.Show("Обновления отсутствуют","Обновление", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else
             {

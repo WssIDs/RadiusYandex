@@ -20,5 +20,8 @@
     <Setting Name="updatesettings" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="updateurl" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://kletsklib.by/assets/uploads/</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

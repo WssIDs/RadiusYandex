@@ -7,10 +7,16 @@
         mc:Ignorable="d"
         Title="Загрузка обновления" Height="139.667" Width="420" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/Updater;component/RadiusYandex.ico" Closed="Window_Closed">
     <Grid>
-        <TextBlock Margin="10,10,10,0" TextWrapping="Wrap" Text="Загрузка обновления..." VerticalAlignment="Top" FontSize="18" TextAlignment="Center"/>
-        <ProgressBar Height="20" Margin="10,40,10,0" VerticalAlignment="Top" Name="downloadstatus_pb"/>
-        <TextBlock Margin="10,90,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Name="progress_tb"/>
-        <ProgressBar Height="20" Margin="10,65,10,0" VerticalAlignment="Top" x:Name="downloadAllstatus_bar"/>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" TextWrapping="Wrap" Text="Загрузка обновления..." FontSize="14" TextAlignment="Center"/>
+        <ProgressBar Grid.Row="1" Name="downloadstatus_pb" Margin="5"/>
+        <ProgressBar Grid.Row="2" x:Name="downloadAllstatus_bar" Margin="5"/>
+        <TextBlock Grid.Row="3" TextWrapping="Wrap"  Name="progress_tb" Margin="5"/>
 
     </Grid>
 </Window>

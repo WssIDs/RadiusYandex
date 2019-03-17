@@ -4,14 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Updater"
-        mc:Ignorable="d" Height="171" Width="352" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        mc:Ignorable="d" Height="135.0" Width="355.0" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="80" Margin="10,10,0,0" VerticalAlignment="Top" Width="80" Source="/Updater;component/RadiusYandex.ico"/>
-        <TextBlock HorizontalAlignment="Left" Margin="95,10,0,0" TextWrapping="Wrap" Text="Обновление доступно. Вы хотите обновить программу?" VerticalAlignment="Top" Width="241" TextAlignment="Center" FontSize="14"/>
-        <TextBlock Name="newversion_tb" HorizontalAlignment="Left" Margin="95,55,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="241" TextAlignment="Center"/>
-        <Button Name="yes_bt" Content="Да" HorizontalAlignment="Left" Margin="104,112,0,0" VerticalAlignment="Top" Width="74" Click="Yes_bt_Click"/>
-        <Button Name="no_bt" Content="Нет" HorizontalAlignment="Left" Margin="183,112,0,0" VerticalAlignment="Top" Width="74" Click="No_bt_Click"/>
-        <Button Name="details_bt" Content="Подробно" HorizontalAlignment="Left" Margin="262,112,0,0" VerticalAlignment="Top" Width="74" Click="Details_bt_Click"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" HorizontalAlignment="Stretch">
+            <Image  Margin="0,0,10,0" Width="70" Source="/Updater;component/RadiusYandex.ico"/>
+            <StackPanel Margin="5,0,0,0">
+                <TextBlock HorizontalAlignment="Left" Text="Обновление доступно." VerticalAlignment="Top" Margin="0,0,0,5" />
+                <TextBlock HorizontalAlignment="Left" Text="Вы хотите обновить программу?" VerticalAlignment="Top"/>
+                <TextBlock Name="newversion_tb" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="10" HorizontalAlignment="Right">
+            <Button Name="yes_bt" Content="Да" Margin="0,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Click="Yes_bt_Click"/>
+            <Button Name="no_bt" Content="Нет" Margin="0,0,5,0" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Click="No_bt_Click"/>
+            <Button Name="details_bt"  Content="Подробно" HorizontalAlignment="Left" VerticalAlignment="Top" Width="74" Click="Details_bt_Click"/>
+        </StackPanel>
 
     </Grid>
 </Window>

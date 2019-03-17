@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RadiusYandex")]
-[assembly: AssemblyDescription("Загрузка и скачивание")]
+[assembly: AssemblyDescription("Загрузка и скачивание файлов, используя Яндекс.Диск")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("WssIDs")]
 [assembly: AssemblyProduct("RadiusYandex")]

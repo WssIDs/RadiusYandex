@@ -34,7 +34,8 @@ namespace Updater
             }
 
             this.Title = applicationInfo.ApplicationName + " - Информация по обновлению";
-            this.version_lb.Text = String.Format("Текущая версия: {0}\nНовая версия: {1}", applicationInfo.ApplicationAssemby.GetName().Version.ToString(), updateInfo.Version.ToString());
+            this.currentVersion_lb.Text = string.Format("Текущая версия: {0}", applicationInfo.ApplicationAssemby.GetName().Version.ToString());
+            this.latestVersion_lb.Text = string.Format("Новая версия: {0}", updateInfo.Version.ToString());
             this.description_tb.Text = updateInfo.Description;
         }
 

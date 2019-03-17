@@ -17,12 +17,8 @@ namespace Updater
 
     public class UpdateXml
     {
-
         private Version version;
         private List<FileUpdateStruct> fileData = new List<FileUpdateStruct>();
-        //private List<Uri> uries = new List<Uri>();
-        //private List<string> filenames = new List<string>();
-        //private string md5;
         private string description;
         private string launchArgs;
 
@@ -35,19 +31,6 @@ namespace Updater
         {
             get => this.fileData;
         }
-
-        //public List<Uri> Uries
-        //{
-        //    get => this.uries;
-        //}
-        //public List<string> Filenames
-        //{
-        //    get => this.filenames;
-        //}
-        //public string Md5
-        //{
-        //    get => this.md5;
-        //}
         public string Description
         {
             get => this.description;
@@ -61,9 +44,6 @@ namespace Updater
         {
             this.version = version;
             this.fileData = fileData;
-            //this.uries = uries;
-            //this.filenames = filenames;
-            //this.md5 = md5;
             this.description = description;
             this.launchArgs = launchArgs;
         }
@@ -93,9 +73,7 @@ namespace Updater
         internal static UpdateXml Parse(Uri location, string appID)
         {
             Version version = null;
-            //string url = "";
             List <FileUpdateStruct> newfileData = new List<FileUpdateStruct>();
-            //string md5 = "";
             string description = "";
             string launchArgs = "";
 
@@ -110,8 +88,6 @@ namespace Updater
                     return null;
 
                 version = Version.Parse(node["version"].InnerText);
-                //url = node["url"].InnerText;
-                //md5 = node["md5"].InnerText;
                 description = node["description"].InnerText;
                 launchArgs = node["launchArgs"].InnerText;
 
@@ -127,9 +103,6 @@ namespace Updater
                     data.md5 = xn["md5"].InnerText;
 
                     newfileData.Add(data);
-                    //string firstName = xn["FirstName"].InnerText;
-                    //string lastName = xn["LastName"].InnerText;
-                    Console.WriteLine("file: {0}", xn.InnerText);
                 }
 
                 return new UpdateXml(version, newfileData, description, launchArgs);

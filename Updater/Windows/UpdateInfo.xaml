@@ -4,13 +4,31 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Updater"
-        mc:Ignorable="d" Height="325.82" Width="374.59" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+        mc:Ignorable="d" Height="235.628" Width="324.984" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="100" Name="icon_img"/>
-        <TextBlock HorizontalAlignment="Left" Margin="115,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="100" Width="244" FontSize="18" TextAlignment="Center" Name="version_lb"/>
-        <TextBox HorizontalAlignment="Left" Margin="10,136,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="117" Width="349" Name="description_tb" IsReadOnly="True" KeyDown="Description_tb_KeyDown" />
-        <TextBlock HorizontalAlignment="Left" Margin="10,115,0,0" TextWrapping="Wrap" Text="Описание" VerticalAlignment="Top" Name="description_tbl"/>
-        <Button Content="Назад" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10" Width="75" Name="back_bt" Click="Back_bt_Click"/>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="128*"/>
+            <ColumnDefinition Width="191*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="10" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Column="0" Name="icon_img" Source="/Updater;component/RadiusYandex.ico" Height="60" Margin="0,0,10,0"/>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="" Name="currentVersion_lb" Margin="0,0,0,3"/>
+                <TextBlock Text="" Name="latestVersion_lb" Margin="0,3,0,0"/>
+            </StackPanel>
+        </Grid>
+        <TextBlock Margin="10,0,10,0" Grid.Row="1" Text="Описание" Name="description_tbl" Grid.ColumnSpan="2"/>
+        <TextBox Margin="10,5,10,5" Grid.Row="2" Name="description_tb" IsReadOnly="True" KeyDown="Description_tb_KeyDown" Grid.ColumnSpan="2" />
+        <Button Grid.Row="3" Content="Назад" Name="back_bt" Click="Back_bt_Click" HorizontalAlignment="Center" Margin="5" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>
