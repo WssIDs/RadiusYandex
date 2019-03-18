@@ -5,15 +5,27 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
-        Title="О нас" Height="204" Width="459.552" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
+        Title="О нас" Height="215" Width="395" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
     <Grid>
-        <Image HorizontalAlignment="Left" Height="120" Margin="10,10,0,0" VerticalAlignment="Top" Width="108" Source="/RadiusYandex;component/RadiusYandex.ico"/>
-        <TextBlock Name="developername_tb" Margin="140,64,10,0" TextWrapping="Wrap" Text="Разработчик: " VerticalAlignment="Top"/>
-        <TextBlock Margin="140,10,0,0" TextWrapping="Wrap" Text="Radius" VerticalAlignment="Top" Height="49" FontSize="24" HorizontalAlignment="Left" Foreground="#FF0097FF" FontWeight="Bold" Width="77"/>
-        <TextBlock Margin="217,10,0,0" TextWrapping="Wrap" Text="Yandex" VerticalAlignment="Top" Height="49" FontSize="24" FontWeight="Bold" Foreground="Red" Panel.ZIndex="100" HorizontalAlignment="Left" Width="227"/>
-        <TextBlock Name="version_tb" Margin="140,85,10,0" TextWrapping="Wrap" Text="Версия: " VerticalAlignment="Top"/>
-        <Button Content="OK" Margin="200,0,179,10" Height="20" VerticalAlignment="Bottom" IsDefault="True" Click="Button_Click"/>
-        <TextBlock Name="year_tb" Margin="140,106,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Height="80" Margin="10" Source="/RadiusYandex;component/RadiusYandex.ico" VerticalAlignment="Top"/>
+        <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="10">
+            <TextBlock Margin="0" TextWrapping="Wrap" Text="Radius" FontSize="24" Foreground="#FF0097FF" FontWeight="Bold"/>
+            <TextBlock Margin="0" TextWrapping="Wrap" Text="Yandex" FontSize="24" FontWeight="Bold" Foreground="Red" Panel.ZIndex="100"/>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="1" Margin="10">
+            <TextBlock Name="developername_tb" Margin="0" TextWrapping="Wrap" Text="Разработчик: "/>
+            <TextBlock Name="version_tb" Margin="0,0,0,0" TextWrapping="Wrap" Text="Версия: " />
+            <TextBlock Name="year_tb" Margin="0,0,0,0" TextWrapping="Wrap"/>
+        </StackPanel>
+        <Button Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Content="OK" HorizontalAlignment="Center" Margin="10" Width="50" IsDefault="True" Click="Button_Click"/>
     </Grid>
 </Window>

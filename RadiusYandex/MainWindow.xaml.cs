@@ -761,11 +761,14 @@ namespace RadiusYandex
 
         private void Edittask_mi_Click(object sender, RoutedEventArgs e)
         {
-            int selectedindex = db_ToYandex.SelectedIndex;
+            if (db_ToYandex.SelectedItem != null)
+            {
+                int selectedindex = db_ToYandex.SelectedIndex;
 
-            Job job = MainJob.Jobs[selectedindex];
+                Job job = MainJob.Jobs[selectedindex];
 
-            EditJob(job);
+                EditJob(job);
+            }
         }
 
         private void Db_ToYandex_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -775,19 +778,25 @@ namespace RadiusYandex
                 MessageBoxResult messageBoxResult = MessageBox.Show("Вы действительно хотите удалить?", "Подтверждение удаления", MessageBoxButton.YesNo);
                 if (messageBoxResult == MessageBoxResult.Yes)
                 {
-                    int selectedindex = db_ToYandex.SelectedIndex;
+                    if (db_ToYandex.SelectedItem != null)
+                    {
+                        int selectedindex = db_ToYandex.SelectedIndex;
 
-                    Job job = MainJob.Jobs[selectedindex];
-                    MainJob.Jobs.Remove(job);
+                        Job job = MainJob.Jobs[selectedindex];
+                        MainJob.Jobs.Remove(job);
+                    }
                 }
             }
             else if( e.Key == Key.Enter)
             {
-                int selectedindex = db_ToYandex.SelectedIndex;
+                if (db_ToYandex.SelectedItem != null)
+                {
+                    int selectedindex = db_ToYandex.SelectedIndex;
 
-                Job job = MainJob.Jobs[selectedindex];
+                    Job job = MainJob.Jobs[selectedindex];
 
-                EditJob(job);
+                    EditJob(job);
+                }
             }
         }
 

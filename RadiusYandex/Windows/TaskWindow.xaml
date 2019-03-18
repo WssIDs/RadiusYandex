@@ -27,11 +27,11 @@
                     SelectedValue="{Binding Type}"  
                     SelectedValuePath="Value">
             </ComboBox>
-            <TextBlock Margin="5" Text="Локальный каталог (Каталог на компьютере. Пример: D:\Test\Local"></TextBlock>
+            <TextBlock Margin="5" Text="Локальный каталог (Каталог на компьютере. Пример: D:\Test\Local)"></TextBlock>
             <TextBox Margin="5,0,5,5" Text="{Binding LocalPath}"></TextBox>
-            <TextBlock Margin="5" Text="Удаленный каталог (Каталог Яндекс.Диска. Пример: Test/Remote"></TextBlock>
+            <TextBlock Margin="5" Text="Удаленный каталог (Каталог Яндекс.Диска. Пример: Test/Remote)"></TextBlock>
             <TextBox Margin="5,0,5,5" Text="{Binding ExternalPath}"></TextBox>
-            <TextBlock Margin="5" Text="Фильтр (Маска копирования файлов. Пример *.*|docum*.*|*.docx"></TextBlock>
+            <TextBlock Margin="5" Text="Фильтр (Маска копирования файлов. Пример *.*|docum*.*|*.docx)"></TextBlock>
             <TextBox Margin="5,0,5,5" Text="{Binding Filter}"></TextBox>
             <CheckBox Margin="5" IsChecked="{Binding DeleteFiles}" Content="Удаление исходных файлов"></CheckBox>
             <Button Margin="5" Content="OK" IsDefault="True" Name="ok" Click="Ok_Click"></Button>
