@@ -64,6 +64,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="MainUpdater.cs" />
+    <Compile Include="Windows\MessageBoxUpdater.xaml.cs">
+      <DependentUpon>MessageBoxUpdater.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\UpdateAccept.xaml.cs">
       <DependentUpon>UpdateAccept.xaml</DependentUpon>
     </Compile>
@@ -84,6 +87,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Windows\MessageBoxUpdater.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Windows\UpdateAccept.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

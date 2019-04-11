@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex.Windows"
         mc:Ignorable="d"
-        Title="О нас" Height="215" Width="395" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
+        Title="О нас" Height="210" Width="390" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Icon="/RadiusYandex;component/RadiusYandex.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />

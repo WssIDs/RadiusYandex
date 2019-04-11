@@ -7,8 +7,11 @@
         mc:Ignorable="d"
         Title="Настройки приложения" Height="342.672" Width="633.189" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
     <Grid>
-
-        <TabControl Margin="5" TabStripPlacement="Left">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TabControl Margin="5" TabStripPlacement="Left" Grid.Row="0">
             <TabItem Header="Основные">
                 <Grid>
                     <StackPanel Orientation="Vertical" Margin="5" Width="auto">
@@ -33,5 +36,9 @@
                 </Grid>
             </TabItem>
         </TabControl>
+        <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right" Margin="5">
+            <Button Content="OK" Width="50" Margin="0,0,5,0" IsDefault="True" Name="Accept_bt" Click="Accept_bt_Click"/>
+            <Button Content="Отмена" Width="60" Margin="0,0,5,0" Height="20" Name="Cancel_bt" IsCancel="True" Click="Cancel_bt_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

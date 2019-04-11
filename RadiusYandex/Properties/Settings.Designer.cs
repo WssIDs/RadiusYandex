@@ -106,5 +106,41 @@ namespace RadiusYandex.Properties {
                 this["updateurl"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightGreen")]
+        public global::System.Drawing.Color success {
+            get {
+                return ((global::System.Drawing.Color)(this["success"]));
+            }
+            set {
+                this["success"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightGoldenrodYellow")]
+        public global::System.Drawing.Color warning {
+            get {
+                return ((global::System.Drawing.Color)(this["warning"]));
+            }
+            set {
+                this["warning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("LightPink")]
+        public global::System.Drawing.Color error {
+            get {
+                return ((global::System.Drawing.Color)(this["error"]));
+            }
+            set {
+                this["error"] = value;
+            }
+        }
     }
 }

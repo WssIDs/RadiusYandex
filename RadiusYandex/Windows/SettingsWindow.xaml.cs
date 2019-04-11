@@ -41,7 +41,6 @@ namespace RadiusYandex.Windows
         private void Deletetoken_bt_Click(object sender, RoutedEventArgs e)
         {
             Properties.Settings.Default.token = "";
-            Properties.Settings.Default.Save();
 
             deletetoken_bt.IsEnabled = false;
             autorize_bt.IsEnabled = true;
@@ -53,6 +52,18 @@ namespace RadiusYandex.Windows
 
             deletetoken_bt.IsEnabled = true;
             autorize_bt.IsEnabled = false;
+        }
+
+        private void Accept_bt_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = true;
+            Close();
+        }
+
+        private void Cancel_bt_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
         }
     }
 }

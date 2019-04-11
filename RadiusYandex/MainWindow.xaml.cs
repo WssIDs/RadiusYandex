@@ -129,59 +129,71 @@ namespace RadiusYandex
                             logger.Info("");
                             logger.Info("----- Запуск задачи " + MainJob.Jobs[n].ID + " -----");
 
-                            DirectoryInfo dirInfo = new DirectoryInfo(MainJob.Jobs[n].LocalPath);
-
-                            if (dirInfo != null)
+                            try
                             {
-                                List<FileInfo> files = MainJob.Jobs[n].Filter.Split('|').SelectMany(filter => dirInfo.GetFiles(filter, SearchOption.TopDirectoryOnly)).ToList();
+                                DirectoryInfo dirInfo = new DirectoryInfo(MainJob.Jobs[n].LocalPath);
 
-                                //CreateDirectoryAsync(MainJob.UploadJobs[n].ExternalPath);
-
-                                if (files != null)
+                                if (dirInfo != null)
                                 {
-                                    MainJob.Jobs[n].Status = "Загрузка...";
-                                    db_ToYandex.Items.Refresh();
-                                    //upload.IsEnabled = false;
-                                    db_ToYandex.IsReadOnly = true;
-                                    MainJob.Jobs[n].Percent = 0;
+                                    List<FileInfo> files = MainJob.Jobs[n].Filter.Split('|').SelectMany(filter => dirInfo.GetFiles(filter, SearchOption.TopDirectoryOnly)).ToList();
 
-                                    for (int i = 0; i < files.Count; i++)
+                                    //CreateDirectoryAsync(MainJob.UploadJobs[n].ExternalPath);
+
+                                    if (files != null && files.Count > 0)
                                     {
-                                        MainJob.Jobs[n].Percent = (i + 1) * 100 / files.Count;
-                                        MainJob.Jobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загрузка";
+                                        MainJob.Jobs[n].Status = "Загрузка...";
                                         db_ToYandex.Items.Refresh();
+                                        //upload.IsEnabled = false;
+                                        db_ToYandex.IsReadOnly = true;
+                                        MainJob.Jobs[n].Percent = 0;
 
-                                        await DiskApi.Files.UploadFileAsync(path: "/" + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name,
-                                                                            overwrite: true,
-                                                                            localFile: files[i].FullName,
-                                                                            cancellationToken: CancellationToken.None);
-
-                                        MainJob.Jobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загружен";
-                                        logger.Info(i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загружен");
-                                        MainJob.Jobs[n].Percent = (i + 1) * 100 / files.Count;
-                                        db_ToYandex.Items.Refresh();
-
-                                        if (MainJob.Jobs[n].DeleteFiles)
+                                        for (int i = 0; i < files.Count; i++)
                                         {
-                                            logger.Info("Удаление файла из локального каталога: " + files[i].FullName);
-                                            files[i].Delete();
+                                            MainJob.Jobs[n].Percent = (i + 1) * 100 / files.Count;
+                                            MainJob.Jobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загрузка";
+                                            db_ToYandex.Items.Refresh();
+
+                                            await DiskApi.Files.UploadFileAsync(path: "/" + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name,
+                                                                                overwrite: true,
+                                                                                localFile: files[i].FullName,
+                                                                                cancellationToken: CancellationToken.None);
+
+                                            MainJob.Jobs[n].Status = i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загружен";
+                                            logger.Info(i + 1 + "/" + files.Count + " Локальный каталог : " + files[i].FullName + " >>> Удаленный каталог : " + MainJob.Jobs[n].ExternalPath + "/" + files[i].Name + " Загружен");
+                                            MainJob.Jobs[n].Percent = (i + 1) * 100 / files.Count;
+                                            db_ToYandex.Items.Refresh();
+
+                                            if (MainJob.Jobs[n].DeleteFiles)
+                                            {
+                                                logger.Info("Удаление файла из локального каталога: " + files[i].FullName);
+                                                files[i].Delete();
+                                            }
                                         }
+
+                                        db_ToYandex.Items.Refresh();
+                                        logger.Info("----- Успешное выполнение задачи " + MainJob.Jobs[n].ID + " -----");
+                                        MainJob.Jobs[n].Status = "Выполнено";
+                                        MainJob.Jobs[n].Percent = 100;
+                                        //upload.IsEnabled = true;
+                                        db_ToYandex.IsReadOnly = false;
+                                    }
+                                    else
+                                    {
+                                        MainJob.Jobs[n].Status = "Выполнено";
+                                        MainJob.Jobs[n].Percent = 100;
+                                        logger.Warn("Файлы в директории отсутствуют");
+                                        logger.Info("----- Задача " + MainJob.Jobs[n].ID + " отменена -----");
                                     }
 
-                                    db_ToYandex.Items.Refresh();
-                                    logger.Info("----- Успешное выполнение задачи " + MainJob.Jobs[n].ID + " -----");
-                                    MainJob.Jobs[n].Status = "Выполнено";
-                                    MainJob.Jobs[n].Percent = 100;
-                                    //upload.IsEnabled = true;
-                                    db_ToYandex.IsReadOnly = false;
-                                }
-                                else
-                                {
-                                    logger.Warn("Файлы в директории отсутствуют");
-                                    logger.Info("----- Задача " + MainJob.Jobs[n].ID + " отменена -----");
-                                }
+                                    logger.Info("");
 
-                                logger.Info("");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                MainJob.Jobs[n].Status = "Ошибка";
+                                logger.Error(ex.Message+": "+"Отсутствует локальная директория - " + MainJob.Jobs[n].LocalPath);
+                                logger.Info("----- Задача " + MainJob.Jobs[n].ID + " отменена -----");
                             }
                         }
                         else
@@ -219,73 +231,98 @@ namespace RadiusYandex
                             logger.Info("");
                             logger.Info("----- Запуск задачи " + job.ID + " -----");
 
-                            db_ToYandex.Items.Refresh();
-                            //upload.IsEnabled = false;
-                            db_ToYandex.IsReadOnly = true;
-
-                            //Getting information about folder /foo and all files in it
-                            Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
-                                new ResourceRequest
-                                {
-                                    Path = "/" + job.ExternalPath, //Folder on Yandex Disk
-                                Limit = 100
-                                }, CancellationToken.None);
-
-                            //Getting all files from response
-                            IEnumerable<Resource> allFilesInFolder =
-                                fooResourceDescription.Embedded.Items.Where(item => item.Type == ResourceType.File);
-
-                            //Path to local folder for downloading files
-                            string localFolder = job.LocalPath;
-
-                            if (allFilesInFolder != null)
+                            try
                             {
-                                int index = 0;
-                                job.Percent = 0;
+                                DirectoryInfo dirInfo = new DirectoryInfo(job.LocalPath);
 
-                                var SortedFiles = GetSortedfilesByFilter(allFilesInFolder, job.Filter);
-
-                                foreach (var item in SortedFiles)
+                                if (dirInfo != null)
                                 {
-                                    job.Percent = (index + 1) * 100 / SortedFiles.Count();
-                                    job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загрузка";
+
+
                                     db_ToYandex.Items.Refresh();
+                                    //upload.IsEnabled = false;
+                                    db_ToYandex.IsReadOnly = true;
 
-                                    //Download file to local
-                                    if (!File.Exists(job.LocalPath + "\\" + item.Name))
-                                    {
-                                        await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: Path.Combine(localFolder, item.Name));
-                                        job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен";
-                                        logger.Info(index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен");
-                                        job.Percent = (index + 1) * 100 / SortedFiles.Count();
-                                        db_ToYandex.Items.Refresh();
-
-                                        if (job.DeleteFiles)
+                                    //Getting information about folder /foo and all files in it
+                                    Resource fooResourceDescription = await DiskApi.MetaInfo.GetInfoAsync(
+                                        new ResourceRequest
                                         {
-                                            await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
-                                            {
-                                                Path = item.Path
-                                            });
+                                            Path = "/" + job.ExternalPath, //Folder on Yandex Disk
+                                            Limit = 100
+                                        }, CancellationToken.None);
 
-                                            logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                                    //Getting all files from response
+                                    IEnumerable<Resource> allFilesInFolder =
+                                        fooResourceDescription.Embedded.Items.Where(item => item.Type == ResourceType.File);
+
+                                    //Path to local folder for downloading files
+                                    string localFolder = job.LocalPath;
+
+                                    if (allFilesInFolder != null && allFilesInFolder.Count() > 0)
+                                    {
+                                        int index = 0;
+                                        job.Percent = 0;
+
+                                        var SortedFiles = GetSortedfilesByFilter(allFilesInFolder, job.Filter);
+
+                                        foreach (var item in SortedFiles)
+                                        {
+                                            job.Percent = (index + 1) * 100 / SortedFiles.Count();
+                                            job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загрузка";
+                                            db_ToYandex.Items.Refresh();
+
+                                            //Download file to local
+                                            if (!File.Exists(job.LocalPath + "\\" + item.Name))
+                                            {
+                                                await DiskApi.Files.DownloadFileAsync(path: item.Path, localFile: Path.Combine(localFolder, item.Name));
+                                                job.Status = index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен";
+                                                logger.Info(index + 1 + "/" + SortedFiles.Count() + " Удаленный каталог : " + item.Path + " >>> Локальный каталог : " + job.LocalPath + "\\" + item.Name + " Загружен");
+                                                job.Percent = (index + 1) * 100 / SortedFiles.Count();
+                                                db_ToYandex.Items.Refresh();
+
+                                                if (job.DeleteFiles)
+                                                {
+                                                    await DiskApi.Commands.DeleteAsync(new DeleteFileRequest
+                                                    {
+                                                        Path = item.Path
+                                                    });
+
+                                                    logger.Info("Удаление файла c Яндекс.Диска: " + item.Path);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                logger.Error("Файл с именем: \"" + item.Name + "\" существует в директории: " + job.LocalPath);
+                                            }
+
+                                            index++;
                                         }
+
+                                        db_ToYandex.Items.Refresh();
+                                        job.Status = "Выполнено";
+                                        job.Percent = 100;
+                                        db_ToYandex.IsReadOnly = false;
+
+                                        logger.Info("----- Успешное выполнение задачи " + job.ID + " -----");
                                     }
                                     else
                                     {
-                                        logger.Error("Файл с именем: \"" + item.Name + "\" существует в директории: " + job.LocalPath);
+                                        db_ToYandex.Items.Refresh();
+                                        job.Status = "Выполнено";
+                                        job.Percent = 100;
+                                        logger.Warn("Файлы в директории отсутствуют");
+                                        logger.Info("----- Задача " + job.ID + " отменена -----");
                                     }
 
-                                    index++;
+                                    logger.Info("");
                                 }
                             }
-
-                            db_ToYandex.Items.Refresh();
-                            job.Status = "Выполнено";
-                            job.Percent = 100;
-                            db_ToYandex.IsReadOnly = false;
-
-                            logger.Info("----- Успешное выполнение задачи " + job.ID + " -----");
-                            logger.Info("");
+                            catch(Exception ex)
+                            {
+                                job.Status = "Ошибка";
+                                logger.Error(ex.Message + ": " + "Отсутствует локальная директория - " + job.LocalPath);
+                                logger.Info("----- Задача " + job.ID + " отменена -----");
+                            }
                         }
                         else
                         {
@@ -511,6 +548,11 @@ namespace RadiusYandex
                     logger.Warn("Ошибка получения информации о диске");
                 }
             }
+            else
+            {
+                logger.Fatal("Ошибка авторизации. Приложение будет закрыто.");
+                Environment.Exit(-1);
+            }
         }
 
         public IDiskApi Authorize()
@@ -529,6 +571,8 @@ namespace RadiusYandex
                 else
                 {
                     logger.Error("Ошибка создания экземпляра класса DiskApi");
+                    logger.Fatal("Приложение будет закрыто.");
+                    Environment.Exit(-1);
                 }
             }
             catch (Exception ex)
@@ -554,11 +598,15 @@ namespace RadiusYandex
                     else
                     {
                         logger.Error("Ошибка создания экземпляра класса DiskApi");
+                        logger.Fatal("Приложение будет закрыто.");
+                        Environment.Exit(-1);
                     }
                 }
                 else
                 {
                     logger.Error("Ошибка инициализации диалогового окна регистраци приложения Яндекс.Диска: " + ex.Message);
+                    logger.Fatal("Приложение будет закрыто.");
+                    Environment.Exit(-1);
                 }
             }
 
@@ -717,8 +765,33 @@ namespace RadiusYandex
 
             if (settingswnd != null)
             {
+                Settings temp = new Settings();
+
+                temp.token = Settings.Default.token;
+                temp.width = Settings.Default.width;
+                temp.height = Settings.Default.height;
+                temp.maximized = Settings.Default.maximized;
+                temp.authorizeclose = Settings.Default.authorizeclose;
+                temp.updatesettings = Settings.Default.updatesettings;
+                temp.updateurl = Settings.Default.updateurl;
+
                 settingswnd.Owner = this;
-                settingswnd.ShowDialog();
+                if (settingswnd.ShowDialog() == true)
+                {
+                    Settings.Default.Save();
+                }
+                else
+                {
+                    Settings.Default.token = temp.token;
+                    Settings.Default.width = temp.width;
+                    Settings.Default.height = temp.height;
+                    Settings.Default.maximized = temp.maximized;
+                    Settings.Default.authorizeclose = temp.authorizeclose;
+                    Settings.Default.updatesettings = temp.updatesettings;
+                    Settings.Default.updateurl = temp.updateurl;
+
+                    Settings.Default.Save();
+                }
             }
         }
 

@@ -28,8 +28,8 @@ namespace UpdaterCreator
         public UpdateAppData()
         {
             AppID = "Default";
-            Version = "";
-            Description = "";
+            Version = "0.0.0.0";
+            Description = "Default";
             LaunchArgs = "";
         }
 

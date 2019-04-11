@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RadiusYandex"
         mc:Ignorable="d"
-        Title="RadiusYandex" Height="417" Width="{Binding width}" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
+        Title="RadiusYandex" Height="{Binding height}" Width="{Binding width}" Closing="MainYandexSync_Closing" Icon="RadiusYandex.ico" Loaded="MainYandexSync_Loaded">
     <Window.Resources>
     </Window.Resources>
     <Grid>
@@ -37,6 +37,21 @@
                     <EventSetter Event="MouseDoubleClick" Handler="Row_DoubleClick"/>
                 </Style>
             </DataGrid.Resources>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Status}" Value="Выполнено">
+                            <Setter Property="Background" Value="LightGreen" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Пропущено">
+                            <Setter Property="Background" Value="LightGoldenrodYellow" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Status}" Value="Ошибка">
+                            <Setter Property="Background" Value="LightPink" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Активно" Width="auto" Binding="{Binding Active}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Тип" Width="auto" Binding="{Binding Type}" IsReadOnly="True"/>

@@ -55,6 +55,11 @@ namespace RadiusYandex.Windows
                 {
                     yandexweb.Navigate(source: OAuthWeb.GetAuthorizationUrl("Yandex"));
                 }
+                else
+                {
+                    logger.Fatal("Ошибка авторизации. Не удается получить URL. Приложение будет закрыто.");
+                    Environment.Exit(-1);
+                }
             }
             else
             {

@@ -50,7 +50,7 @@ namespace Updater
                 }
                 else
                 {
-                    MessageBox.Show("Обновление не требуется.\n У вас актуальная версия приложения.", "Обновление приложения", MessageBoxButton.OK, MessageBoxImage.Information);
+                    UpdateMessageBox.Show(applicationInfo,"Проверка обновления","Обновление не требуется", "У вас актуальная версия приложения"+"\nВерсия: "+ applicationInfo.ApplicationAssemby.GetName().Version.ToString(), MessageBoxInfoType.Info);
                 }
             }
         }
@@ -77,11 +77,11 @@ namespace Updater
             }
             else if(result == false)
             {
-                MessageBox.Show("Загрузка обновления отменена.\nПрограмма осталась без изменений.", "Загрузка обновления отменена", MessageBoxButton.OK, MessageBoxImage.Information);
+                UpdateMessageBox.Show(applicationInfo,"Загрузка обновления отменена", "Загрузка обновления отменена", "Пожалуйста, попробуйте позже", MessageBoxInfoType.Error);
             }
             else
             {
-                MessageBox.Show("Обнаружена проблема с загрузкой обновления.\nПожалуйста, попробуйте позже.", "Ошибка загрузки обновления", MessageBoxButton.OK, MessageBoxImage.Information);
+                UpdateMessageBox.Show(applicationInfo, "Ошибка загрузки обновления", "Обнаружена проблема с загрузкой обновления", "Пожалуйста, попробуйте позже", MessageBoxInfoType.Error);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Updater
             if(!UpdateXml.ExistsOnServer(applicationInfo.UpdateXmlLocation))
             {
                 e.Cancel = true;
-                MessageBox.Show("Обновления отсутствуют","Обновление", MessageBoxButton.OK, MessageBoxImage.Information);
+                UpdateMessageBox.Show(applicationInfo, "Проверка обновления", "Обновления отсутствуют", MessageBoxInfoType.Info);
             }
             else
             {

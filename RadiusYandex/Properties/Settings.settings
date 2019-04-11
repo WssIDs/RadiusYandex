@@ -23,5 +23,14 @@
     <Setting Name="updateurl" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://kletsklib.by/assets/uploads/</Value>
     </Setting>
+    <Setting Name="success" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">LightGreen</Value>
+    </Setting>
+    <Setting Name="warning" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">LightGoldenrodYellow</Value>
+    </Setting>
+    <Setting Name="error" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">LightPink</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

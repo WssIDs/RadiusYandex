@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UpdaterCreator"
         mc:Ignorable="d"
-        Title="MainWindow" Height="694" Width="800">
+        Title="UpdateXML Creator" Height="694" Width="800">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
@@ -19,7 +19,7 @@
             <TextBlock Text="ID приложения" FontWeight="Bold"></TextBlock>
             <TextBox Name="AppID_tb" Text="{Binding Path=AppID}" ></TextBox>
             <TextBlock Text="Описание обновления" FontWeight="Bold"></TextBlock>
-            <TextBox Name="description_tb" Text="{Binding Path=Description}" ></TextBox>
+            <TextBox Name="description_tb" Text="{Binding Path=Description}" MinLines="4" MaxLines="10" VerticalScrollBarVisibility="Auto"></TextBox>
             <TextBlock Text="Параметры запуска приложения" FontWeight="Bold"></TextBlock>
             <TextBox Name="launchargs_tb" Text="{Binding Path=LauncArgs}" ></TextBox>
             <Separator/>
